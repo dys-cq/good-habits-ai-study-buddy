@@ -4,3 +4,4 @@ node_modules/
 *.log
 .DS_Store
 Wiki 维护手册.md
+.trae/
