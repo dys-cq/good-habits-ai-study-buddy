@@ -1,4 +1,4 @@
-# 星际学习联盟 - Docker 配置
+# 星际学霸 - Docker 配置
 FROM node:18-alpine
 
 # 安装依赖

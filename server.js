@@ -524,19 +524,15 @@ app.post('/api/extract-knowledge', async (req, res) => {
 1. 提取核心知识点，不要照搬原文
 2. 用简洁的语言概括，适合中学生复习用
 3. 如果内容是纯情绪对话（非学科知识），提取"情绪应对策略"作为知识卡片
-4. 返回严格的 JSON 格式，不要有多余文字
+4. 返回严格的 JSON 格式，不要有多余文字，不要用 markdown 代码块包裹
+5. JSON 中所有字符串值不要包含换行符，用空格分隔即可
+6. JSON 中不要出现未转义的双引号，引号内内容用单引号或书名号代替
 
-返回格式：
-{
-  "title": "知识点的标题（10-20字）",
-  "summary": "一句话概括这个知识点（30字内）",
-  "keyPoints": ["要点1", "要点2", "要点3"],
-  "commonMistakes": ["常见错误1", "常见错误2"],
-  "relatedConcepts": ["相关概念1", "相关概念2"]
-}
+返回格式（直接输出 JSON，不要 \`\`\`json 包裹）：
+{"title":"知识点标题","summary":"一句话概括","keyPoints":["要点1","要点2"],"commonMistakes":["易错1"],"relatedConcepts":["关联1"]}
 
 如果内容确实没有可提取的知识，返回：
-{"title": "", "summary": "", "keyPoints": [], "commonMistakes": [], "relatedConcepts": []}`;
+{"title":"","summary":"","keyPoints":[],"commonMistakes":[],"relatedConcepts":[]}`;
 
     const userMessage = `科目：${subject || '未指定'}
 已有知识卡片标题（可用于发现关联）：${(existingTitles || []).join('、') || '无'}
@@ -581,12 +577,36 @@ ${content.slice(0, 2000)}`;
       // 尝试提取 JSON 部分
       const match = aiContent.match(/\{[\s\S]*\}/);
       if (match) {
-        card = JSON.parse(match[0]);
+        try {
+          // 清理常见的 JSON 格式问题
+          let jsonStr = match[0];
+          // 移除字符串值中的未转义换行符
+          jsonStr = jsonStr.replace(/:\s*"([^"]*)\n([^"]*)"/g, (m, p1, p2) => 
+            ': "' + (p1 + ' ' + p2).replace(/\n/g, ' ') + '"'
+          );
+          // 移除控制字符
+          jsonStr = jsonStr.replace(/[\x00-\x1f]/g, (ch) => {
+            if (ch === '\n' || ch === '\r') return ' ';
+            if (ch === '\t') return '\\t';
+            return '';
+          });
+          card = JSON.parse(jsonStr);
+        } catch (e2) {
+          // 二次解析仍然失败，降级
+          console.error('JSON parse failed twice:', e2.message, 'Content:', aiContent.slice(0, 200));
+          card = {
+            title: content.slice(0, 20).replace(/\n/g, ' '),
+            summary: content.slice(0, 50).replace(/\n/g, ' '),
+            keyPoints: [],
+            commonMistakes: [],
+            relatedConcepts: []
+          };
+        }
       } else {
         // 降级：返回原始内容作为摘要
         card = {
-          title: content.slice(0, 15) + '...',
-          summary: content.slice(0, 50),
+          title: content.slice(0, 20).replace(/\n/g, ' '),
+          summary: content.slice(0, 50).replace(/\n/g, ' '),
           keyPoints: [],
           commonMistakes: [],
           relatedConcepts: []
@@ -599,6 +619,116 @@ ${content.slice(0, 2000)}`;
   } catch (error) {
     console.error('Extract Knowledge Error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// 诗人对谈 API - 用古诗词做心理辅导
+app.post('/api/poetry-chat', async (req, res) => {
+  try {
+    const { messages, matchedTopic, matchedPoems } = req.body;
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: '消息不能为空' });
+    }
+
+    // 构建系统提示词
+    let systemPrompt = `你是一位博古通今的诗人学者，正在和一位13-18岁的中学生对话。
+
+你的角色：
+- 像一位温和的古代学长，用诗词智慧陪伴少年走过成长的困惑
+- 说话风格：温润如玉，既有古风韵味，又让现代中学生听得懂
+- 每次回复控制在80-150字，不写长篇大论
+- 先共情用户的感受，再用诗词点拨，最后给一句温暖的鼓励
+
+对话规则：
+1. 当用户的烦恼匹配某个心理议题时，用对应的古诗词来引导
+2. 引用诗词时格式：「诗词内容」—— 作者《出处》
+3. 引用后用一句话解释这首诗如何与用户的处境相关
+4. 不要直接给答案或说教，用诗词的意境引导用户自己感悟
+5. 如果用户情绪很差，先接住情绪，不要急着抛诗词
+6. 偶尔可以分享诗人自己的故事来拉近距离`;
+
+    // 如果有匹配的议题和诗词，加入提示词
+    if (matchedTopic && matchedPoems && matchedPoems.length > 0) {
+      systemPrompt += `\n\n当前匹配的心理议题：${matchedTopic.topic}
+辅导策略：${matchedTopic.strategy}
+推荐使用的诗词：`;
+      matchedPoems.forEach(p => {
+        systemPrompt += `\n- 「${p.text}」—— ${p.author}《${p.source}》（${p.explanation}）`;
+      });
+      systemPrompt += `\n\n请在回复中自然地引用其中一首诗词，不要生硬堆砌。`;
+    }
+
+    const requestMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages
+    ];
+
+    const response = await fetch(`${process.env.ARK_API_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.ARK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'minimax-m3',
+        messages: requestMessages,
+        max_tokens: 400,
+        temperature: 0.8,
+        stream: true
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Poetry Chat API Error:', response.status, errorData);
+      return res.status(500).json({ error: 'AI service error' });
+    }
+
+    // SSE 流式传输
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') {
+              res.write('data: [DONE]\n\n');
+            } else {
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                }
+              } catch (e) {
+                // 忽略解析错误
+              }
+            }
+          }
+        }
+      }
+    } finally {
+      res.end();
+    }
+
+  } catch (error) {
+    console.error('Poetry Chat Error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
@@ -617,7 +747,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 星际学习联盟服务运行在 http://localhost:${PORT}`);
+  console.log(`🚀 星际学霸服务运行在 http://localhost:${PORT}`);
   console.log(`📚 AI 学习搭子已就绪`);
   console.log(`💪 青少年身心健康支持已开启`);
 });

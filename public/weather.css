@@ -1,0 +1,743 @@
+/* ============================================================
+   天气动画样式表（提取自 Emotion_Weather_Station）
+   包含：天气背景层、画布、6 种天气场景动画、诗词卡片、音效按钮
+   ============================================================ */
+
+/* ========== 天气背景层 ========== */
+.weather-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, #1e2a3a 0%, #2a3548 100%);
+  transition: background 1.5s ease;
+}
+
+/* ========== 天气画布 ========== */
+.weather-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ========== 音效开关按钮 ========== */
+.sound-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(8px);
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.sound-toggle:hover {
+  background: rgba(0,0,0,0.5);
+  border-color: rgba(255,255,255,0.4);
+  transform: scale(1.1);
+}
+
+/* ========== 场景标签 ========== */
+.scene-label {
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   天气动画（实时动态效果）
+   ============================================================ */
+
+/* --- 晴朗：蔚蓝天空 + 真实感太阳（多层柔和光晕 + 镜头光晕） --- */
+
+.sunny-sky-haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255,250,230,0.25) 0%, transparent 50%),
+    linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.08) 100%);
+  pointer-events: none;
+}
+
+.sun {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+}
+
+.sun-disk {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle,
+    #ffffff 0%,
+    #fffef5 30%,
+    #fff8d6 55%,
+    rgba(255,240,200,0.6) 75%,
+    transparent 100%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 40px 10px rgba(255,255,240,0.6),
+    0 0 80px 30px rgba(255,250,220,0.4),
+    0 0 160px 60px rgba(255,240,200,0.2);
+  animation: sunBreathe 4s ease-in-out infinite;
+}
+
+.sun-core-bright {
+  position: absolute;
+  top: 35%;
+  left: 35%;
+  width: 30%;
+  height: 30%;
+  background: #ffffff;
+  border-radius: 50%;
+  filter: blur(2px);
+  opacity: 0.95;
+  animation: sunBreathe 4s ease-in-out infinite;
+}
+
+.sun-halo-inner {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(circle,
+    rgba(255,250,230,0.4) 0%,
+    rgba(255,240,200,0.2) 40%,
+    transparent 70%);
+  border-radius: 50%;
+  animation: haloPulse 5s ease-in-out infinite;
+}
+
+.sun-halo-mid {
+  position: absolute;
+  inset: -100px;
+  background: radial-gradient(circle,
+    rgba(255,245,210,0.18) 0%,
+    rgba(255,235,180,0.08) 50%,
+    transparent 80%);
+  border-radius: 50%;
+  animation: haloPulse 7s ease-in-out infinite 1s;
+}
+
+.sun-halo-outer {
+  position: absolute;
+  inset: -200px;
+  background: radial-gradient(circle,
+    rgba(255,240,200,0.08) 0%,
+    transparent 60%);
+  border-radius: 50%;
+  animation: haloPulse 9s ease-in-out infinite 2s;
+}
+
+@keyframes sunBreathe {
+  0%,100% { transform: scale(1); opacity: 0.95; }
+  50%     { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes haloPulse {
+  0%,100% { transform: scale(1); opacity: 0.7; }
+  50%     { transform: scale(1.1); opacity: 1; }
+}
+
+/* 镜头光晕（lens flare） */
+.lens-flare {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  width: 100%;
+  height: 4px;
+  transform: translateX(0);
+  pointer-events: none;
+}
+
+.flare-spot {
+  position: absolute;
+  top: 0;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: flareFlicker 6s ease-in-out infinite;
+}
+
+.flare-1 {
+  left: 180px;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(255,250,220,0.5), transparent 70%);
+  animation-delay: 0s;
+}
+
+.flare-2 {
+  left: 320px;
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle, rgba(180,220,255,0.4), transparent 70%);
+  animation-delay: 1.5s;
+}
+
+.flare-3 {
+  left: 450px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(255,240,200,0.3), transparent 70%);
+  animation-delay: 3s;
+}
+
+.flare-line {
+  position: absolute;
+  top: 50%;
+  left: 100px;
+  width: 500px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,250,220,0.15) 20%,
+    rgba(255,250,220,0.3) 50%,
+    rgba(255,250,220,0.15) 80%,
+    transparent 100%);
+  transform: translateY(-50%);
+  animation: flareFlicker 8s ease-in-out infinite;
+}
+
+@keyframes flareFlicker {
+  0%,100% { opacity: 0.3; }
+  50%     { opacity: 0.7; }
+}
+
+/* 薄云 */
+.thin-cloud {
+  position: absolute;
+  width: 200px;
+  height: 40px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 40px;
+  filter: blur(8px);
+  animation: thinCloudDrift linear infinite;
+}
+
+.thin-cloud::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 30px;
+  width: 60px;
+  height: 50px;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.thin-cloud::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 90px;
+  width: 50px;
+  height: 40px;
+  background: inherit;
+  border-radius: 50%;
+}
+
+@keyframes thinCloudDrift {
+  from { transform: translateX(-300px); }
+  to   { transform: translateX(calc(100vw + 300px)); }
+}
+
+.light-particles {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 20%, rgba(255,250,230,0.12) 0%, transparent 60%);
+}
+
+.light-mote {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255,250,230,0.7);
+  border-radius: 50%;
+  box-shadow: 0 0 4px 1px rgba(255,250,230,0.4);
+  animation: moteFloat linear infinite;
+}
+
+@keyframes moteFloat {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translate(30px, -100px); opacity: 0; }
+}
+
+/* --- 多云：碧蓝天空 + SVG 湍流云朵 --- */
+.cloud-svg {
+  position: absolute;
+  width: 360px;
+  height: 120px;
+  animation: cloudDrift linear infinite;
+  will-change: transform;
+}
+
+.cloud-svg.cloud-far {
+  filter: blur(2.5px);
+}
+
+.cloud-svg.cloud-mid {
+  filter: blur(1px);
+}
+
+.cloud-svg.cloud-near {
+  filter: blur(0.3px);
+}
+
+@keyframes cloudDrift {
+  from { transform: translateX(-400px) scale(var(--cloud-scale, 1)); }
+  to   { transform: translateX(calc(100vw + 400px)) scale(var(--cloud-scale, 1)); }
+}
+
+/* --- 暴雨：雨滴下落 + 闪电闪烁 --- */
+.rain-container { position: absolute; inset: 0; }
+
+.raindrop {
+  position: absolute;
+  top: -30px;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, rgba(180,210,255,0.8));
+  animation: rainFall linear infinite;
+}
+
+@keyframes rainFall {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0.4; }
+}
+
+.lightning {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 100vh;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.95), transparent);
+  clip-path: polygon(50% 0%, 0% 40%, 60% 40%, 20% 100%, 80% 50%, 40% 50%, 100% 0%);
+  opacity: 0;
+  animation: lightningFlash 7s ease-in-out infinite;
+}
+
+.lightning-1 { left: 25%; animation-delay: 0s; }
+.lightning-2 { left: 65%; animation-delay: 3.5s; }
+
+@keyframes lightningFlash {
+  0%, 88%, 100% { opacity: 0; }
+  89%, 91% { opacity: 0.9; }
+  90% { opacity: 0.3; }
+  92% { opacity: 0.7; }
+  93% { opacity: 0; }
+}
+
+/* --- 阴雾：灰雾弥漫 --- */
+.fog-container { position: absolute; inset: 0; }
+
+.fog-layer {
+  position: absolute;
+  inset: -10%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(180,180,180,0.2) 0%, transparent 70%);
+  animation: fogDrift 22s ease-in-out infinite;
+}
+
+@keyframes fogDrift {
+  0%,100% { transform: translateX(-40px) scale(1); opacity: 0.4; }
+  50%     { transform: translateX(40px) scale(1.15); opacity: 0.7; }
+}
+
+/* --- 雷雨：暗红云层 + 频繁分叉闪电 + 全屏闪光 + 画面震动 --- */
+.thunder-rain .raindrop {
+  background: linear-gradient(to bottom, transparent, rgba(220,235,255,0.7));
+}
+
+.thunder-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.thunder-cloud {
+  position: absolute;
+  width: 380px;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(40,20,30,0.85) 0%, rgba(30,15,25,0.4) 60%, transparent 90%);
+  filter: blur(20px);
+  animation: thunderCloudDrift linear infinite;
+}
+
+@keyframes thunderCloudDrift {
+  from { transform: translateX(-200px); }
+  to   { transform: translateX(calc(100vw + 200px)); }
+}
+
+.lightning-group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lightning-bolt {
+  position: absolute;
+  top: 0;
+  width: 90px;
+  height: 100vh;
+  opacity: 0;
+  filter:
+    drop-shadow(0 0 6px rgba(220,235,255,0.95))
+    drop-shadow(0 0 15px rgba(180,210,255,0.7))
+    drop-shadow(0 0 30px rgba(150,180,255,0.4));
+  animation: lightningStrike ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes lightningStrike {
+  0%, 100% { opacity: 0; }
+  0.5% { opacity: 1; }
+  1.5% { opacity: 0.15; }
+  2.5% { opacity: 0.95; }
+  3.5% { opacity: 0.1; }
+  4.5% { opacity: 0.65; }
+  6%, 100% { opacity: 0; }
+}
+
+.thunder-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(220,235,255,0.55) 0%, rgba(180,210,255,0.25) 50%, transparent 80%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: thunderFlashSeq 2.5s ease-in-out infinite;
+}
+
+@keyframes thunderFlashSeq {
+  0%, 100% { opacity: 0; }
+  0.5% { opacity: 0.85; }
+  1.5% { opacity: 0.1; }
+  2.5% { opacity: 0.6; }
+  3.5% { opacity: 0.05; }
+  4.5% { opacity: 0.35; }
+  6%, 100% { opacity: 0; }
+}
+
+.thunder-bg-flash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(80,60,80,0.5) 0%, rgba(60,40,60,0.3) 100%);
+  opacity: 0;
+  pointer-events: none;
+  animation: thunderBgFlash 2.5s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+@keyframes thunderBgFlash {
+  0%, 100% { opacity: 0; }
+  0.5% { opacity: 0.7; }
+  1.5% { opacity: 0.1; }
+  2.5% { opacity: 0.4; }
+  3.5% { opacity: 0.05; }
+  4.5% { opacity: 0.25; }
+  6%, 100% { opacity: 0; }
+}
+
+.weather-canvas.scene-thunder .lightning-group {
+  animation: thunderShake 2.5s ease-in-out infinite;
+}
+
+@keyframes thunderShake {
+  0%, 100% { transform: translate(0, 0); }
+  0.5% { transform: translate(-2px, 1px); }
+  1.5% { transform: translate(1px, -1px); }
+  2.5% { transform: translate(-1px, 2px); }
+  3.5% { transform: translate(2px, 0); }
+  4.5% { transform: translate(-1px, -1px); }
+  6%, 100% { transform: translate(0, 0); }
+}
+
+/* --- 大雾：浓雾缭绕 --- */
+.heavy-fog-container { position: absolute; inset: 0; }
+
+.fog-band {
+  position: absolute;
+  left: -200px;
+  right: -200px;
+  height: 120px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(230,235,245,0.35) 0%, rgba(210,220,235,0.15) 50%, transparent 80%);
+  filter: blur(30px);
+  animation: fogBandDrift linear infinite;
+}
+
+@keyframes fogBandDrift {
+  from { transform: translateX(calc(-300px * var(--drift-dir, 1))); }
+  to   { transform: translateX(calc((100vw + 300px) * var(--drift-dir, 1))); }
+}
+
+.fog-puff {
+  position: absolute;
+  background: radial-gradient(ellipse at 50% 50%, rgba(240,245,250,0.45) 0%, rgba(220,230,240,0.2) 50%, transparent 75%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: fogPuffDrift linear infinite, fogPuffFloat ease-in-out infinite;
+}
+
+@keyframes fogPuffDrift {
+  from { transform: translateX(-300px); }
+  to   { transform: translateX(calc(100vw + 300px)); }
+}
+
+@keyframes fogPuffFloat {
+  0%, 100% { margin-top: 0; }
+  50%      { margin-top: -25px; }
+}
+
+.fog-swirl {
+  position: absolute;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(245,250,255,0.4) 0%, transparent 45%),
+    radial-gradient(ellipse at 70% 60%, rgba(230,235,245,0.35) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(220,230,240,0.3) 0%, transparent 60%);
+  border-radius: 50%;
+  filter: blur(25px);
+  animation: fogSwirlRotate linear infinite, fogSwirlPulse ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+@keyframes fogSwirlRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fogSwirlPulse {
+  0%, 100% { opacity: 0.55; scale: 1; }
+  50%      { opacity: 0.85; scale: 1.15; }
+}
+
+.fog-mote {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(245,250,255,0.7);
+  border-radius: 50%;
+  filter: blur(2px);
+  box-shadow: 0 0 8px 2px rgba(230,235,245,0.4);
+  animation: fogMoteFloat ease-in-out infinite, fogMoteDrift linear infinite;
+}
+
+@keyframes fogMoteFloat {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  25%      { transform: translate(20px, -15px); opacity: 0.7; }
+  50%      { transform: translate(40px, 5px); opacity: 0.5; }
+  75%      { transform: translate(15px, 20px); opacity: 0.8; }
+}
+
+@keyframes fogMoteDrift {
+  from { margin-left: 0; }
+  to   { margin-left: 100px; }
+}
+
+.heavy-fog-layer { display: none; }
+@keyframes heavyFogDrift {
+  from { transform: translateX(-300px); }
+  to   { transform: translateX(calc(100vw + 300px)); }
+}
+
+/* ============================================================
+   诗词对照卡片（用于天气诗词覆盖层）
+   ============================================================ */
+.poetry-card {
+  background: rgba(20,25,40,0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  animation: cardFadeIn 0.6s ease;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.card-label-left, .card-label-right { flex: 1; }
+.card-label-right { text-align: right; }
+.card-arrow {
+  flex: 0;
+  padding: 0 16px;
+  font-size: 20px;
+  color: rgba(255,255,255,0.4);
+}
+
+.card-body {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.card-col { flex: 1; min-width: 0; }
+
+.card-baihua p {
+  font-size: 18px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.card-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.1);
+}
+
+.card-poetry p {
+  font-family: "Songti SC", "SimSun", "STSong", serif;
+  font-size: 19px;
+  color: #f5e6c8;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.card-source {
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+.theme-tag {
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.6);
+}
+
+/* ============================================================
+   天气诗词覆盖层（overlay）
+   ============================================================ */
+#weather-poetry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+#weather-poetry-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.weather-poetry-content {
+  max-width: 560px;
+  width: 100%;
+  animation: cardFadeIn 0.6s ease;
+}
+
+.weather-poetry-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.weather-poetry-scene {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.weather-poetry-scene-icon {
+  font-size: 22px;
+}
+
+.weather-poetry-scene-name {
+  font-size: 15px;
+  color: rgba(255,255,255,0.85);
+}
+
+.weather-poetry-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.weather-poetry-btn {
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+}
+
+.weather-poetry-btn-primary {
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: white;
+}
+
+.weather-poetry-btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(79,70,229,0.5);
+}
+
+.weather-poetry-btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.weather-poetry-btn-secondary:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* 移动端适配 */
+@media (max-width: 600px) {
+  .card-body { flex-direction: column; gap: 12px; }
+  .card-divider { width: 100%; height: 1px; }
+  .card-label-right { text-align: left; }
+  .card-arrow { transform: rotate(90deg); padding: 4px 0; }
+  .card-baihua p { font-size: 16px; }
+  .card-poetry p { font-size: 17px; }
+  .sun { width: 100px; height: 100px; top: 8%; }
+}

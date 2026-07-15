@@ -1,7 +1,7 @@
 {
   "name": "galaxy-learning-alliance",
   "version": "1.0.0",
-  "description": "新一代智能协同学习系统 - 星际学习联盟",
+  "description": "新一代智能协同学习系统 - 星际学霸",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

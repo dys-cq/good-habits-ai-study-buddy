@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>星际学习联盟 - AI 协同学习系统</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
-  <!-- KaTeX 数学公式渲染 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <title>星际学霸 - AI 协同学习系统</title>
+  <script src="tailwind.js"></script>
+  <!-- KaTeX 数学公式渲染（本地） -->
+  <link rel="stylesheet" href="katex.min.css">
+  <script defer src="katex.min.js"></script>
+  <script defer src="auto-render.min.js"></script>
   <style>
     :root {
       --space-dark: #0f0f23;
@@ -24,13 +23,13 @@
     * { box-sizing: border-box; }
 
     body {
-      font-family: 'Noto Sans SC', sans-serif;
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
       background: linear-gradient(135deg, var(--space-dark) 0%, var(--space-purple) 50%, #1e1e3f 100%);
       min-height: 100vh;
       color: #e2e8f0;
     }
 
-    .font-space { font-family: 'Orbitron', 'Noto Sans SC', sans-serif; }
+    .font-space { font-family: "SF Mono", "Fira Code", "Courier New", monospace; font-weight: 700; }
 
     .glass {
       background: rgba(255, 255, 255, 0.05);
@@ -350,6 +349,10 @@
       padding: 20px;
     }
 
+    .modal.hidden {
+      display: none !important;
+    }
+
     .modal-content {
       background: var(--space-purple);
       border-radius: 20px;
@@ -386,6 +389,18 @@
       font-size: 12px;
       margin-right: 8px;
       margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.4;
+    }
+
+    .tag.selected {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .tag:hover {
+      opacity: 0.8;
     }
 
     .tag-math { background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5); }
@@ -397,9 +412,84 @@
 
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ========== 浅色天气主题（晴天/多云）========== */
+    /* 天气场景为亮色背景时，文字和卡片自动切换为深色系 */
+    body.theme-light {
+      color: #1a1a2e;
+    }
+    body.theme-light .glass {
+      background: rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    body.theme-light .card {
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    body.theme-light .btn-secondary {
+      background: rgba(0, 0, 0, 0.08);
+      color: #1a1a2e;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+    body.theme-light .btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.15);
+    }
+    body.theme-light .mood-btn {
+      background: rgba(255, 255, 255, 0.4);
+    }
+    body.theme-light .nav-item {
+      color: rgba(30, 30, 50, 0.6);
+    }
+    body.theme-light .nav-item:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+    body.theme-light .chat-bubble.bot {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: #1a1a2e;
+    }
+    body.theme-light .stat-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    body.theme-light .habit-card {
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    body.theme-light select {
+      background: rgba(255, 255, 255, 0.7);
+      color: #1a1a2e;
+    }
+    body.theme-light input {
+      background: rgba(255, 255, 255, 0.7);
+      color: #1a1a2e;
+    }
+    body.theme-light textarea {
+      background: rgba(255, 255, 255, 0.7);
+      color: #1a1a2e;
+    }
+    body.theme-light .opacity-60 { opacity: 0.65; }
+    body.theme-light .opacity-70 { opacity: 0.75; }
+    body.theme-light .opacity-40 { opacity: 0.5; }
+    body.theme-light .opacity-50 { opacity: 0.6; }
+
+    /* 深色天气主题（暴雨/雷雨/阴雾/大雾）- 保持原有亮色文字 */
+    body.theme-dark {
+      color: #e2e8f0;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
   </style>
+  <link rel="stylesheet" href="weather.css">
 </head>
 <body class="scrollbar-hide">
+  <!-- 天气背景层 + 画布（全屏，pointer-events:none） -->
+  <div id="weather-bg" class="weather-bg"></div>
+  <div id="weather-canvas" class="weather-canvas"></div>
+
   <!-- 星空背景 -->
   <div class="stars" id="stars"></div>
 
@@ -407,19 +497,39 @@
   <div class="relative z-10 max-w-4xl mx-auto px-4 py-6 pb-24">
 
     <!-- 顶部导航 -->
-    <header class="glass rounded-2xl p-4 mb-6 flex items-center justify-between">
+    <header class="glass rounded-2xl p-4 mb-6 flex items-center justify-between relative z-50">
       <div class="flex items-center gap-3">
-        <div class="text-4xl floating">🚀</div>
+        <div class="relative">
+          <div class="text-4xl floating cursor-pointer" onclick="toggleRocketMenu()">🚀</div>
+          <div id="rocket-menu" class="hidden absolute top-full left-0 mt-2 glass rounded-2xl p-2 min-w-[180px] z-50 shadow-xl">
+            <button class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3" onclick="exportData();toggleRocketMenu()">
+              <span class="text-xl">📤</span>
+              <div>
+                <div class="text-sm font-medium">导出数据</div>
+                <div class="text-xs opacity-50">保存学习记录</div>
+              </div>
+            </button>
+            <button class="w-full text-left px-4 py-3 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3" onclick="resetAll();toggleRocketMenu()">
+              <span class="text-xl">🔄</span>
+              <div>
+                <div class="text-sm font-medium">重新开始</div>
+                <div class="text-xs opacity-50">清空所有记录</div>
+              </div>
+            </button>
+          </div>
+        </div>
         <div>
-          <h1 class="font-space text-xl gradient-text">星际学习联盟</h1>
+          <h1 class="font-space text-xl gradient-text">星际学霸</h1>
           <p class="text-xs opacity-60">AI 协同学习系统 v2.0</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
+        <span id="scene-label" class="scene-label hidden"></span>
+        <button id="sound-toggle-btn" class="sound-toggle" onclick="toggleSound()" title="静音/取消静音">🔊</button>
         <span class="text-sm opacity-60" id="streak-display">🔥 连续 0 天</span>
         <div class="flex items-center gap-2">
           <span id="header-level" class="text-sm font-bold">🌍 地球</span>
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-lg">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-lg cursor-pointer hover:scale-110 transition-transform" onclick="showLevelCard()" title="点击查看等级详情">
             ⭐
           </div>
         </div>
@@ -461,7 +571,7 @@
         <!-- 进度文字 + 下一步按钮 -->
         <div class="flex items-center justify-between gap-3">
           <div id="journey-progress-text" class="text-sm opacity-70">0/4 阶段完成</div>
-          <button id="journey-next-btn" class="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all">下一步</button>
+          <button id="journey-next-btn" class="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all" onclick="journeyNext()">下一步</button>
         </div>
       </div>
 
@@ -510,7 +620,7 @@
           </button>
           <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('notes', event)">
             <div class="text-2xl mb-1">📝</div>
-            <div class="text-xs">知识库</div>
+            <div class="text-xs">知识星球</div>
           </button>
         </div>
 
@@ -526,7 +636,7 @@
             <div class="mb-6">
               <p class="text-sm opacity-70 mb-4">嘿，小伙伴～今天感觉怎么样？选择一个最贴近的心情吧</p>
 
-              <div class="grid grid-cols-3 md:grid-cols-5 gap-3" id="mood-grid">
+              <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="mood-grid">
                 <!-- 心情按钮由 JS 生成 -->
               </div>
             </div>
@@ -576,20 +686,39 @@
                 </div>
               </div>
 
-              <!-- 快捷问题 -->
-              <div class="mb-4">
+              <!-- 模式切换 -->
+              <div class="flex gap-2 mb-4">
+                <button id="mode-study" class="btn-cosmic text-sm" onclick="switchChatMode('study')">📚 学习搭子</button>
+                <button id="mode-poetry" class="btn-secondary text-sm" onclick="switchChatMode('poetry')">🎙️ 诗人对谈</button>
+              </div>
+
+              <!-- 学习模式快捷问题 -->
+              <div id="quick-study" class="mb-4">
                 <p class="text-sm opacity-70 mb-2">试试这些：</p>
                 <div class="flex flex-wrap gap-2">
-                  <button class="btn-secondary text-sm" onclick="sendStudyChat('我被一道数学大题卡住了，能给我一个思路吗？')">🧮 数学大题</button>
-                  <button class="btn-secondary text-sm" onclick="sendStudyChat('下周要月考，我该怎么排这一周的自习？')">📅 排自习</button>
-                  <button class="btn-secondary text-sm" onclick="sendStudyChat('帮我翻译这段英语，并分析语法结构')">🅰️ 英语分析</button>
-                  <button class="btn-secondary text-sm" onclick="sendStudyChat('读一段《滕王阁序》给我听，告诉我重点句')">📜 古文拆解</button>
-                  <button class="btn-secondary text-sm" onclick="sendStudyChat('物理大题：分析运动过程，帮我列出已知量')">🔬 物理分析</button>
+                  <button class="btn-secondary text-sm" onclick="quickAsk('数学','我被一道数学大题卡住了，能给我一个思路吗？')">🧮 数学大题</button>
+                  <button class="btn-secondary text-sm" onclick="quickAsk('语文','下周要月考，我该怎么排这一周的自习？')">📅 排自习</button>
+                  <button class="btn-secondary text-sm" onclick="quickAsk('英语','帮我翻译这段英语，并分析语法结构')">🅰️ 英语分析</button>
+                  <button class="btn-secondary text-sm" onclick="quickAsk('语文','读一段《滕王阁序》给我听，告诉我重点句')">📜 古文拆解</button>
+                  <button class="btn-secondary text-sm" onclick="quickAsk('物理','物理大题：分析运动过程，帮我列出已知量')">🔬 物理分析</button>
                 </div>
               </div>
 
-              <!-- 科目选择 -->
-              <div class="mb-4">
+              <!-- 诗人对谈快捷问题 -->
+              <div id="quick-poetry" class="mb-4 hidden">
+                <p class="text-sm opacity-70 mb-2">和诗人聊聊你的心事：</p>
+                <div class="flex flex-wrap gap-2">
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('考试没考好，感觉自己很没用')">😰 学业压力</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('上课被点名答不上来，感觉全班都在看我')">😱 社死急救</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('刚跟爸妈吵了一架，他们说我不努力，但我真的尽力了')">🏠 家长冲突</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('觉得自己什么都做不好，不如别人')">💔 自我否定</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('很迷茫，不知道学习到底为了什么')">🌫️ 迷茫困惑</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('没有朋友，觉得自己很孤独')">🥀 人际孤独</button>
+                </div>
+              </div>
+
+              <!-- 科目选择（仅学习模式） -->
+              <div id="subject-select" class="mb-4">
                 <label class="text-sm opacity-70 mb-2 block">选择科目：</label>
                 <select id="study-subject" class="mb-3">
                   <option value="数学">🧮 数学</option>
@@ -672,7 +801,7 @@
               </div>
 
               <!-- 边学边问按钮 - Task 8: 番茄钟→学习搭子联动 -->
-              <button id="study-bot-float-btn" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg flex items-center justify-center text-2xl z-50 hover:scale-110 transition-transform hidden" onclick="openStudyBotFromTimer()" title="边学边问">
+              <button id="study-bot-float-btn" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg flex items-center justify-center text-2xl z-50 hover:scale-110 transition-transform hidden pulse" onclick="openStudyBotFromTimer()" title="遇到问题？点这里问小星">
                 🤖
               </button>
             </div>
@@ -742,9 +871,10 @@
 
           <!-- 好习惯 -->
           <div id="tab-habits" class="tab-content">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
               <span class="text-2xl">✨</span> 养成好习惯
             </h2>
+            <p class="text-sm opacity-60 mb-4">每天打卡好习惯，坚持就是胜利！打卡可获得 ⭐ 经验值，连续 7 天还会收到小星的鼓励哦～</p>
 
             <div class="mb-4">
               <button class="btn-cosmic" onclick="showAddHabitModal()">+ 添加新习惯</button>
@@ -827,25 +957,12 @@
         </div>
       </div>
 
-      <!-- 底部快捷操作 -->
-      <div class="mt-6 grid grid-cols-2 gap-4">
-        <button class="card p-4 text-left" onclick="exportData()">
-          <div class="text-2xl mb-1">📤</div>
-          <div class="font-bold">导出数据</div>
-          <div class="text-xs opacity-60">保存学习记录</div>
-        </button>
-        <button class="card p-4 text-left" onclick="resetAll()">
-          <div class="text-2xl mb-1">🔄</div>
-          <div class="font-bold">重新开始</div>
-          <div class="text-xs opacity-60">清空所有记录</div>
-        </button>
-      </div>
     </main>
 
     <!-- 页脚 -->
     <footer class="text-center text-xs opacity-50 mt-8 pb-4">
-      <p>🚀 星际学习联盟 · TRAE AI 创造力大赛 · 青少年身心健康公益赛道</p>
-      <p class="mt-1">Powered by 字节豆包大模型</p>
+      <p>🚀 星际学霸 · 你的努力将成为主宰星际的基石</p>
+      <p class="mt-1">Powered by Nice哥</p>
     </footer>
   </div>
 
@@ -907,6 +1024,53 @@
     </div>
   </div>
 
+  <!-- 天气诗词覆盖层 -->
+  <div id="weather-poetry-overlay">
+    <div class="weather-poetry-content">
+      <div class="weather-poetry-header">
+        <div class="weather-poetry-scene">
+          <span id="wp-scene-icon" class="weather-poetry-scene-icon">☀</span>
+          <span id="wp-scene-name" class="weather-poetry-scene-name">晴朗</span>
+        </div>
+      </div>
+      <div id="wp-poetry-card" class="poetry-card">
+        <div class="card-header">
+          <span class="card-label-left">你说的</span>
+          <span class="card-arrow">→</span>
+          <span class="card-label-right">古人说的</span>
+        </div>
+        <div class="card-body">
+          <div class="card-col card-baihua">
+            <p id="wp-baihua"></p>
+          </div>
+          <div class="card-divider"></div>
+          <div class="card-col card-poetry">
+            <p id="wp-poetry"></p>
+            <div class="card-source" id="wp-source"></div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="theme-tag" id="wp-theme"></span>
+          <span id="wp-match-type"></span>
+        </div>
+      </div>
+      <div class="weather-poetry-actions">
+        <button class="weather-poetry-btn weather-poetry-btn-secondary" onclick="toggleSound()">🔊 静音/取消静音</button>
+        <button class="weather-poetry-btn weather-poetry-btn-primary" onclick="closeWeatherOverlay()">继续与AI搭子聊天 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 天气模块脚本（data 文件必须在 modules 之前） -->
+  <script src="data/emotions.js"></script>
+  <script src="data/synonyms.js"></script>
+  <script src="data/poetryData.js"></script>
+  <script src="data/poetryCounseling.js"></script>
+  <script src="modules/weatherRenderer.js"></script>
+  <script src="modules/emotionAnalyzer.js"></script>
+  <script src="modules/poetryMatcher.js"></script>
+  <script src="modules/soundManager.js"></script>
+
   <script>
     // ========== 全局状态 ==========
     const API_BASE = '';
@@ -914,6 +1078,28 @@
     let selectedEmoji = '🌟';
     let selectedMood = null;
     let selectedSubjects = ['数学', '英语'];
+
+    // ========== 通用 Toast 通知 ==========
+    let toastTimer = null;
+    function showToast(msg, duration = 3500) {
+      const existing = document.getElementById('app-toast');
+      if (existing) existing.remove();
+      if (toastTimer) clearTimeout(toastTimer);
+
+      const toast = document.createElement('div');
+      toast.id = 'app-toast';
+      toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[9999] glass px-6 py-4 rounded-2xl text-sm max-w-md text-center shadow-2xl';
+      toast.style.animation = 'toastIn 0.3s ease';
+      toast.innerHTML = msg.replace(/\n/g, '<br>');
+      document.body.appendChild(toast);
+
+      toastTimer = setTimeout(() => {
+        toast.style.transition = 'opacity 0.4s, transform 0.4s';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-20px)';
+        setTimeout(() => toast.remove(), 400);
+      }, duration);
+    }
 
     let store = {
       get() {
@@ -1030,7 +1216,7 @@
       if (newLevel > oldLevel) {
         const planet = PLANETS[newLevel - 1];
         setTimeout(() => {
-          alert(`🎉 恭喜升级！\n\n你已到达「${planet.emoji} ${planet.name}」\n经验值：${data.exp}\n\n继续探索宇宙吧！🚀`);
+          showToast(`🎉 恭喜升级！<br>你已到达「${planet.emoji} ${planet.name}」<br>经验值：${data.exp}<br>继续探索宇宙吧！🚀`, 5000);
         }, 500);
       }
 
@@ -1050,6 +1236,72 @@
           headerLevel.innerHTML = `${planet.emoji} ${planet.name} <span class="text-xs opacity-60">(${data.exp} EXP)</span>`;
         }
       }
+    }
+
+    function showLevelCard() {
+      const planet = PLANETS[(data.level || 1) - 1];
+      const nextPlanet = PLANETS[data.level] || null;
+      const exp = data.exp || 0;
+      const streak = data.streak || 0;
+
+      // 构建等级路线图
+      const roadmap = PLANETS.map((p, i) => {
+        const isCurrent = i === (data.level || 1) - 1;
+        const isPassed = i < (data.level || 1) - 1;
+        const isLocked = i > (data.level || 1) - 1;
+        return `
+          <div class="flex items-center gap-3 ${isCurrent ? 'opacity-100' : isLocked ? 'opacity-30' : 'opacity-60'}">
+            <div class="text-2xl ${isCurrent ? 'animate-pulse' : ''}">${p.emoji}</div>
+            <div class="flex-1">
+              <div class="text-sm font-medium ${isCurrent ? 'text-yellow-300' : ''}">${p.name}${isCurrent ? ' (当前)' : ''}</div>
+              <div class="text-xs opacity-50">${p.minExp} 经验</div>
+            </div>
+            ${isPassed ? '<span class="text-green-400">✓</span>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      let progressInfo = '';
+      if (nextPlanet) {
+        const currentMin = planet.minExp;
+        const nextMin = nextPlanet.minExp;
+        const progress = ((exp - currentMin) / (nextMin - currentMin) * 100).toFixed(0);
+        progressInfo = `
+          <div class="mt-3 mb-2">
+            <div class="flex justify-between text-xs opacity-60 mb-1">
+              <span>${exp} EXP</span>
+              <span>${nextMin} EXP</span>
+            </div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div class="h-full rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all" style="width: ${progress}%"></div>
+            </div>
+            <div class="text-xs opacity-60 mt-1 text-center">还需 ${nextMin - exp} 经验升级到「${nextPlanet.emoji} ${nextPlanet.name}」</div>
+          </div>
+        `;
+      } else {
+        progressInfo = `<div class="text-center text-sm opacity-60 mt-3">🏆 已达到最高等级！</div>`;
+      }
+
+      // 创建弹窗
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 z-[9999] flex items-center justify-center';
+      overlay.style.background = 'rgba(0,0,0,0.6)';
+      overlay.innerHTML = `
+        <div class="glass rounded-2xl p-6 max-w-xs w-full mx-4" style="animation: toastIn 0.2s ease;">
+          <div class="text-center mb-4">
+            <div class="text-4xl mb-2">${planet.emoji}</div>
+            <div class="text-lg font-bold gradient-text">${planet.name}</div>
+            <div class="text-xs opacity-50">总经验值 ${exp} · 🔥 连续 ${streak} 天</div>
+          </div>
+          ${progressInfo}
+          <div class="mt-4 pt-4 border-t border-white/10 space-y-2">
+            ${roadmap}
+          </div>
+          <button class="btn-cosmic w-full mt-4" onclick="this.closest('.fixed').remove()">知道了</button>
+        </div>
+      `;
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      document.body.appendChild(overlay);
     }
 
     function renderDailyJourney() {
@@ -1103,18 +1355,27 @@
       if (nextBtn) {
         if (nextStage) {
           nextBtn.textContent = `下一步：${nextStage.label}`;
-          nextBtn.onclick = () => {
-            if (nextStage.key === 'summary') {
-              generateDailySummary();
-            } else {
-              showTab(nextStage.tab);
-            }
-          };
+          nextBtn.dataset.nextKey = nextStage.key;
+          nextBtn.dataset.nextTab = nextStage.tab;
           nextBtn.classList.remove('hidden');
         } else {
           nextBtn.textContent = '🎉 今日之旅已完成！';
-          nextBtn.onclick = null;
+          nextBtn.dataset.nextKey = '';
+          nextBtn.dataset.nextTab = '';
         }
+      }
+    }
+
+    function journeyNext() {
+      const btn = document.getElementById('journey-next-btn');
+      if (!btn) return;
+      const key = btn.dataset.nextKey;
+      const tab = btn.dataset.nextTab;
+      if (!key) return;
+      if (key === 'summary') {
+        generateDailySummary();
+      } else {
+        showTab(tab);
       }
     }
 
@@ -1249,7 +1510,8 @@
 
     // ========== 心情打卡 ==========
     const MOODS = [
-      { k: 5, e: '😄', t: '超棒', sub: '宇宙无敌', color: '#fbbf24' },
+      { k: 6, e: '🤩', t: '超棒', sub: '宇宙无敌', color: '#fbbf24' },
+      { k: 5, e: '😄', t: '开心', sub: '元气满满', color: '#f59e0b' },
       { k: 4, e: '🙂', t: '不错', sub: '稳步前进', color: '#34d399' },
       { k: 3, e: '😐', t: '一般', sub: '正常运转', color: '#60a5fa' },
       { k: 2, e: '😔', t: '有点烦', sub: '需要释放', color: '#f472b6' },
@@ -1335,10 +1597,116 @@
       updateStreak();
       renderDailyJourney();
 
-      // 自动切换到 AI 搭子界面，以心情为切入点开始对话
+      // 播放天气动画 + 显示诗词对照卡片（完成后由用户点击继续聊天）
+      pendingMoodInfo = moodInfo;
+      showWeatherAndPoetry(moodInfo.level, moodInfo.note);
+    }
+
+    // ========== 天气动画 + 诗词对照 ==========
+    let pendingMoodInfo = null;
+
+    // 心情等级 → 天气场景映射（备注为空时的备用方案）
+    const MOOD_TO_SCENE = {
+      1: 'thunder',     // 破防了 → 雷雨
+      2: 'rainstorm',   // 有点烦 → 暴雨
+      3: 'fog',         // 一般 → 阴雾
+      4: 'calm',        // 不错 → 多云
+      5: 'sunny',       // 开心 → 晴朗
+      6: 'sunny'        // 超棒 → 晴朗
+    };
+
+    function showWeatherAndPoetry(moodLevel, moodNote) {
+      // a. 分析情绪主题
+      const theme = EmotionAnalyzer.analyze(moodNote);
+
+      // b. 推断天气场景（有备注时用语义分析，无备注时用心情等级映射）
+      let sceneName;
+      if (moodNote && moodNote.trim()) {
+        sceneName = EmotionAnalyzer.analyzeScene(moodNote, theme);
+        // 双向兜底：备注分析结果与心情等级严重矛盾时，以心情等级为准
+        const negativeScenes = ['rainstorm', 'thunder', 'fog', 'heavyfog'];
+        const positiveScenes = ['sunny', 'calm'];
+        if (moodLevel >= 5 && negativeScenes.includes(sceneName)) {
+          // 心情很好但天气是负面的 → 覆盖为晴天
+          sceneName = 'sunny';
+        } else if (moodLevel <= 2 && positiveScenes.includes(sceneName)) {
+          // 心情很差但天气是正面的 → 覆盖为心情等级对应的天气
+          sceneName = MOOD_TO_SCENE[moodLevel] || 'rainstorm';
+        }
+      } else {
+        sceneName = MOOD_TO_SCENE[moodLevel] || 'calm';
+      }
+
+      // c. 播放天气动画
+      WeatherRenderer.setScene(sceneName);
+
+      // d. 播放音效
+      SoundManager.setScene(sceneName);
+
+      // 显示场景标签
+      const sceneLabel = document.getElementById('scene-label');
+      const sceneCfg = WeatherRenderer.scenes[sceneName];
+      if (sceneLabel && sceneCfg) {
+        sceneLabel.textContent = sceneCfg.name;
+        sceneLabel.classList.remove('hidden');
+      }
+
+      // e. 匹配古诗词
+      const poetry = PoetryMatcher.match(moodNote, theme);
+
+      // f. 显示覆盖层
+      showWeatherOverlay(sceneName, moodNote, theme, poetry);
+    }
+
+    function showWeatherOverlay(sceneName, moodNote, theme, poetry) {
+      const overlay = document.getElementById('weather-poetry-overlay');
+      const sceneCfg = WeatherRenderer.scenes[sceneName] || WeatherRenderer.scenes.calm;
+
+      // 填充天气图标和名称
+      document.getElementById('wp-scene-icon').textContent = sceneCfg.icon;
+      document.getElementById('wp-scene-name').textContent = sceneCfg.name;
+
+      // 填充诗词卡片
+      if (poetry) {
+        document.getElementById('wp-baihua').textContent = moodNote || poetry.baihua || '（未填写备注）';
+        document.getElementById('wp-poetry').textContent = poetry.poetry || '';
+        const author = poetry.author ? poetry.author : '';
+        const dynasty = poetry.dynasty ? `·${poetry.dynasty}` : '';
+        const source = poetry.source ? `《${poetry.source.replace(/[《》]/g, '')}》` : '';
+        document.getElementById('wp-source').textContent = [author, dynasty, source].filter(Boolean).join(' ');
+        document.getElementById('wp-theme').textContent = theme ? EmotionAnalyzer.themeDisplayName(theme) : '日常';
+        const matchTypeMap = { exact: '精确匹配', similar: '语义匹配', random: '主题推荐', fallback: '随机推荐' };
+        document.getElementById('wp-match-type').textContent = matchTypeMap[poetry.matchType] || '';
+      } else {
+        document.getElementById('wp-baihua').textContent = moodNote || '（未填写备注）';
+        document.getElementById('wp-poetry').textContent = '暂无匹配诗词，愿你心如明月，万里共清辉。';
+        document.getElementById('wp-source').textContent = '';
+        document.getElementById('wp-theme').textContent = theme ? EmotionAnalyzer.themeDisplayName(theme) : '日常';
+        document.getElementById('wp-match-type').textContent = '';
+      }
+
+      // 显示覆盖层（淡入）
+      overlay.classList.add('visible');
+    }
+
+    function closeWeatherOverlay() {
+      const overlay = document.getElementById('weather-poetry-overlay');
+      overlay.classList.remove('visible');
+
+      // 延迟后调用 startMoodChat
+      const moodInfo = pendingMoodInfo;
+      pendingMoodInfo = null;
       setTimeout(() => {
-        startMoodChat(moodInfo);
-      }, 800);
+        if (moodInfo) startMoodChat(moodInfo);
+      }, 400);
+    }
+
+    // 音效开关
+    function toggleSound() {
+      const muted = SoundManager.toggleMute();
+      const btn = document.getElementById('sound-toggle-btn');
+      btn.textContent = muted ? '🔇' : '🔊';
+      btn.title = muted ? '取消静音' : '静音';
     }
 
     // ========== 心情→AI搭子 联动：以心情为切入点开始对话 ==========
@@ -1471,6 +1839,7 @@
 
     function getLocalMoodReply(k) {
       const replies = {
+        6: '状态无敌！🚀 今天的你闪闪发光，放手去冲吧，宇宙都在为你加油！',
         5: '状态绝佳！🌟 今天的你可以挑战一些有难度的任务，把这股劲头保持住！',
         4: '保持得不错！💪 可以完成一些日常任务，给自己点小奖励～',
         3: '正常的一天～ 📊 做好该做的事就好，不需要太多压力。',
@@ -1524,19 +1893,107 @@
       const currentTask = data.planTasks?.find(t => t.id === data.currentTaskId);
       if (currentTask) {
         // 设置科目为当前任务科目
-        document.getElementById('study-subject').value = currentTask.subject || '数学';
+        const subjectMap = { '数学': '数学', '英语': '英语', '语文': '语文', '物理': '物理', '化学': '化学', '生物': '生物', '历史': '历史', '地理': '地理', '政治': '政治' };
+        document.getElementById('study-subject').value = subjectMap[currentTask.subject] || currentTask.subject || '数学';
       }
 
       // 切换到学习搭子标签
       showTab('study');
 
-      // 如果番茄钟正在运行，提示用户
-      if (data.isRunning) {
-        appendStudyMessage('💡 小提示：番茄钟还在运行中哦，可以边学边问，但别忘了保持专注！', 'bot');
+      // 在对话界面展示当前任务卡片
+      if (currentTask) {
+        const chat = document.getElementById('study-chat');
+        const stars = '⭐'.repeat(currentTask.difficulty || 1);
+        const typeLabel = currentTask.type === 'habit' ? '✨ 习惯任务' : '🍅 番茄任务';
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'flex justify-start mb-3';
+        cardDiv.innerHTML = `
+          <div class="flex items-start gap-2">
+            <div class="ai-avatar mr-2 flex-shrink-0">📋</div>
+            <div class="flex-1 max-w-[85%]">
+              <div class="chat-bubble bot" style="padding: 0; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, rgba(79,70,229,0.3), rgba(59,130,246,0.2)); padding: 14px 16px;">
+                  <div class="text-xs text-purple-300 mb-1">🎯 当前学习任务</div>
+                  <div class="font-bold text-base mb-2">${currentTask.title}</div>
+                  <div class="flex flex-wrap gap-2 text-xs">
+                    <span class="px-2 py-1 rounded bg-white/10">${getSubjectEmoji(currentTask.subject)} ${currentTask.subject}</span>
+                    <span class="px-2 py-1 rounded bg-white/10">${typeLabel}</span>
+                    <span class="px-2 py-1 rounded bg-white/10">${stars}</span>
+                  </div>
+                </div>
+                <div style="padding: 10px 16px; font-size: 13px; opacity: 0.7;">
+                  💡 小星已了解你的学习任务，直接提问就好！番茄钟运行中，保持专注哦～
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        chat.appendChild(cardDiv);
+        scrollToBottom();
+      } else if (data.isRunning) {
+        appendStudyMessage('💡 番茄钟还在运行中，可以边学边问，保持专注哦！', 'bot');
       }
     }
 
     // ========== AI 学习搭子 ==========
+    // 聊天模式：'study' 或 'poetry'
+    let chatMode = 'study';
+
+    // 切换聊天模式
+    function switchChatMode(mode) {
+      chatMode = mode;
+      const btnStudy = document.getElementById('mode-study');
+      const btnPoetry = document.getElementById('mode-poetry');
+      const quickStudy = document.getElementById('quick-study');
+      const quickPoetry = document.getElementById('quick-poetry');
+      const subjectSelect = document.getElementById('subject-select');
+      const studyInput = document.getElementById('study-input');
+
+      if (mode === 'poetry') {
+        btnStudy.className = 'btn-secondary text-sm';
+        btnPoetry.className = 'btn-cosmic text-sm';
+        quickStudy.classList.add('hidden');
+        quickPoetry.classList.remove('hidden');
+        subjectSelect.classList.add('hidden');
+        if (studyInput) studyInput.placeholder = '和诗人聊聊你的心事…';
+      } else {
+        btnStudy.className = 'btn-cosmic text-sm';
+        btnPoetry.className = 'btn-secondary text-sm';
+        quickStudy.classList.remove('hidden');
+        quickPoetry.classList.add('hidden');
+        subjectSelect.classList.remove('hidden');
+        if (studyInput) studyInput.placeholder = '问小星一道题或聊聊学习烦恼…';
+      }
+    }
+
+    // 匹配心理辅导议题
+    function matchCounselingTopic(text) {
+      if (!window.COUNSELING_DATA || !window.COUNSELING_DATA.topicPoetryMap) return null;
+      const topics = window.COUNSELING_DATA.topicPoetryMap;
+      let bestMatch = null;
+      let bestScore = 0;
+      for (const topic of topics) {
+        let score = 0;
+        for (const keyword of topic.keywords) {
+          if (text.includes(keyword)) {
+            score += keyword.length;
+          }
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = topic;
+        }
+      }
+      return bestMatch;
+    }
+
+    // 快捷提问：自动切换科目并发送
+    function quickAsk(subject, question) {
+      const select = document.getElementById('study-subject');
+      if (select) select.value = subject;
+      sendStudyChat(question);
+    }
+
     async function sendStudyChat(pre) {
       const input = document.getElementById('study-input');
       const text = (pre || input.value || '').trim();
@@ -1557,26 +2014,89 @@
       messageDiv.className = 'flex justify-start mb-3';
       messageDiv.innerHTML = `
         <div class="flex items-start gap-2">
-          <div class="ai-avatar mr-2 flex-shrink-0">🤖</div>
+          <div class="ai-avatar mr-2 flex-shrink-0">${chatMode === 'poetry' ? '📜' : '🤖'}</div>
           <div class="flex-1 max-w-[85%]">
             <div class="chat-bubble bot" style="white-space: pre-wrap;">
               <span class="streaming-text"></span><span class="cursor-blink">▋</span>
             </div>
             <div class="flex items-center gap-2 mt-2">
-              <button 
+              <button
                 class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 save-to-notes-btn"
                 title="保存到知识星球"
                 onclick="saveChatToNotes('${messageId}')"
               >
                 📚 收藏
               </button>
-              <span class="text-xs text-gray-500">小星的回答</span>
+              <span class="text-xs text-gray-500">${chatMode === 'poetry' ? '诗人的回答' : '小星的回答'}</span>
             </div>
           </div>
         </div>
       `;
       document.getElementById('study-chat').appendChild(messageDiv);
       scrollToBottom();
+
+      // 诗人对谈模式
+      if (chatMode === 'poetry') {
+        try {
+          const matchedTopic = matchCounselingTopic(text);
+          const poetryMessages = [{ role: 'user', content: text }];
+
+          const response = await fetch(API_BASE + '/api/poetry-chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: poetryMessages,
+              matchedTopic: matchedTopic ? { topic: matchedTopic.topic, strategy: matchedTopic.strategy } : null,
+              matchedPoems: matchedTopic ? matchedTopic.poems : []
+            })
+          });
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullContent = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const lineData = line.slice(6);
+                if (lineData === '[DONE]') {
+                  const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                  if (cursor) cursor.remove();
+                } else {
+                  try {
+                    const parsed = JSON.parse(lineData);
+                    if (parsed.content) {
+                      fullContent += parsed.content;
+                      updateStreamingMessage(messageId, fullContent);
+                    } else if (parsed.error) {
+                      const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                      if (cursor) cursor.remove();
+                      document.querySelector(`#${messageId} .streaming-text`).textContent = '诗人正在沉思…请稍后再试 🌙';
+                    }
+                  } catch (e) { /* 忽略 */ }
+                }
+              }
+            }
+          }
+
+          data.studyMessages.push({ role: 'user', content: text });
+          data.studyMessages.push({ role: 'assistant', content: fullContent });
+          save();
+        } catch (err) {
+          const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+          if (cursor) cursor.remove();
+          document.querySelector(`#${messageId} .streaming-text`).textContent = '网络波动，诗人暂时离线了 🍃';
+        }
+        return;
+      }
+
+      // 学习搭子模式（原有逻辑）
 
       try {
         // 构建上下文感知的消息
@@ -1718,13 +2238,13 @@
     async function saveChatToNotes(messageId) {
       const streamingText = document.querySelector(`#${messageId} .streaming-text`);
       if (!streamingText) {
-        alert('❌ 无法获取聊天内容');
+        showToast('❌ 无法获取聊天内容');
         return;
       }
 
       const content = streamingText.textContent || streamingText.innerText;
       if (!content.trim()) {
-        alert('❌ 聊天内容为空');
+        showToast('❌ 聊天内容为空');
         return;
       }
 
@@ -1797,7 +2317,7 @@
           renderNotes();
 
           loadingToast.remove();
-          alert(`🎉 知识卡片已生成！\n\n📚 ${card.title}\n${card.summary || ''}\n\n${card.keyPoints?.length || 0} 个要点 | ${card.commonMistakes?.length || 0} 个易错点`);
+          showToast(`🎉 知识卡片已生成！<br>📚 ${card.title}<br>${card.summary || ''}<br>${card.keyPoints?.length || 0} 个要点 | ${card.commonMistakes?.length || 0} 个易错点`, 5000);
         } else {
           // AI 判断无可提取知识，降级为原文保存
           throw new Error('No knowledge extracted');
@@ -1821,7 +2341,7 @@
         save();
         renderNotes();
 
-        alert(`✅ 已保存到知识星球！\n\n（知识提取服务暂时不可用，已保存原文）`);
+        showToast('✅ 已保存到知识星球！（知识提取暂时不可用，已保存原文）');
       }
     }
 
@@ -1976,9 +2496,11 @@
       if (!currentTaskId) {
         const tasks = data.planTasks.filter(t => !t.completed);
         if (tasks.length > 0) {
-          alert('请先选择一个任务哦～\n\n点击任务卡片选中后，再开始计时 🎯');
-          // 自动切换到任务列表
-          showTab('timer');
+          showToast('请先选择上方的一个任务，再开始计时 🎯');
+          return;
+        } else {
+          showToast('还没有学习计划哦～ 先去创建一个吧！📋');
+          showTab('plan');
           return;
         }
       }
@@ -2003,6 +2525,14 @@
               <div class="text-blue-300 text-xs mb-1">🎯 当前任务</div>
               <div class="font-medium">${task.title}</div>
               <div class="text-xs opacity-75">${task.subject}</div>
+              <div class="text-xs mt-2 opacity-60">📱 遇到问题？点右下角 🤖 随时问小星</div>
+            </div>
+          `;
+        } else {
+          document.getElementById('current-task-display').innerHTML = `
+            <div class="bg-purple-500/20 border border-purple-500/30 rounded-lg p-3">
+              <div class="text-purple-300 text-xs">⏰ 专注时间开始！</div>
+              <div class="text-xs mt-1 opacity-60">放下手机，专注学习。遇到问题点右下角 🤖 问小星</div>
             </div>
           `;
         }
@@ -2070,15 +2600,15 @@
                 relatedHabit.streak = (relatedHabit.streak || 0) + 1;
                 save();
                 renderHabits();
-                alert(`🎉 太棒了！任务"${task.title}"完成！\n\n✨ 自动打卡习惯「${relatedHabit.name}」成功！\n🔥 连续打卡 ${relatedHabit.streak} 天！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+                showToast(`🎉 任务"${task.title}"完成！<br>✨ 自动打卡习惯「${relatedHabit.name}」成功！<br>🔥 连续打卡 ${relatedHabit.streak} 天！<br>已完成 ${data.tomatoes} 个番茄 🌸`, 5000);
               } else {
-                alert(`🎉 太棒了！任务"${task.title}"完成！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+                showToast(`🎉 任务"${task.title}"完成！<br>已完成 ${data.tomatoes} 个番茄 🌸`);
               }
             } else {
-              alert(`🎉 太棒了！任务"${task.title}"完成！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+              showToast(`🎉 任务"${task.title}"完成！<br>已完成 ${data.tomatoes} 个番茄 🌸`);
             }
           } else {
-            alert('🎉 番茄完成！休息一下吧～');
+            showToast('🎉 番茄完成！休息一下吧～');
           }
 
           pomo.stage = 'break';
@@ -2098,7 +2628,7 @@
         } else {
           pomo.stage = 'focus';
           pomo.remain = pomo.mode * 60;
-          alert('⏰ 休息结束！准备好继续学习了吗？');
+          showToast('⏰ 休息结束！准备好继续学习了吗？');
         }
       }
       renderPomo();
@@ -2145,7 +2675,7 @@
       const time = document.getElementById('plan-time').value;
 
       if (!goal) {
-        alert('请输入学习目标哦～');
+        showToast('请输入学习目标哦～');
         return;
       }
 
@@ -2210,10 +2740,10 @@
           }
 
         } else {
-          alert('生成计划失败，请重试～');
+          showToast('生成计划失败，请重试～');
         }
       } catch (err) {
-        alert('网络有点问题呢 🤔');
+        showToast('网络有点问题呢 🤔');
       }
 
       btn.disabled = false;
@@ -2223,8 +2753,9 @@
     // Task 13: 根据心情获取难度权重
     function getMoodDifficultyWeight(moodLevel) {
       const weights = {
-        5: { easy: 0.15, medium: 0.35, hard: 0.50 },  // 超棒：40%高难度
-        4: { easy: 0.20, medium: 0.40, hard: 0.40 },  // 不错：30%高难度
+        6: { easy: 0.10, medium: 0.30, hard: 0.60 },  // 超棒：60%高难度
+        5: { easy: 0.15, medium: 0.35, hard: 0.50 },  // 开心：50%高难度
+        4: { easy: 0.20, medium: 0.40, hard: 0.40 },  // 不错：40%高难度
         3: { easy: 0.30, medium: 0.50, hard: 0.20 },  // 一般：20%高难度
         2: { easy: 0.50, medium: 0.40, hard: 0.10 },  // 有点烦：10%高难度
         1: { easy: 0.65, medium: 0.30, hard: 0.05 }   // 破防了：5%高难度
@@ -2323,12 +2854,22 @@
       const todayTasks = data.planTasks.filter(t => !t.completed);
 
       if (todayTasks.length === 0 && !data.currentPlan) {
-        tasksContainer.innerHTML = '<p class="text-sm opacity-50">还没有今日学习计划哦～</p>';
+        tasksContainer.innerHTML = `
+          <div class="text-center py-4">
+            <p class="text-sm opacity-50 mb-3">还没有今日学习计划哦～</p>
+            <button class="btn-cosmic text-sm" onclick="showTab('plan')">📋 去创建学习计划</button>
+          </div>
+        `;
         return;
       }
 
       if (!data.currentPlan) {
-        tasksContainer.innerHTML = '<p class="text-sm opacity-50">还没有今日学习计划哦～</p>';
+        tasksContainer.innerHTML = `
+          <div class="text-center py-4">
+            <p class="text-sm opacity-50 mb-3">还没有今日学习计划哦～</p>
+            <button class="btn-cosmic text-sm" onclick="showTab('plan')">📋 去创建学习计划</button>
+          </div>
+        `;
         return;
       }
 
@@ -2461,9 +3002,10 @@
       // 打卡成功（非取消打卡）才奖励经验值
       if (habit.completed.includes(today)) {
         addExp(5, '习惯打卡');
+        const streak = calcHabitStreak(habit);
+        showToast(`✅ 「${habit.name}」打卡成功！+5 经验${streak > 1 ? ` · 连续 ${streak} 天 🔥` : ''}`);
 
         // 连续打卡7天触发AI鼓励
-        const streak = calcHabitStreak(habit);
         if (streak > 0 && streak % 7 === 0) {
           setTimeout(() => {
             appendStudyMessage(`🎉 太棒了！习惯「${habit.name}」已经连续打卡 ${streak} 天了！小星想跟你说几句～`, 'bot');
@@ -2498,7 +3040,7 @@
     function saveNewHabit() {
       const name = document.getElementById('new-habit-name').value;
       if (!name) {
-        alert('请输入习惯名称～');
+        showToast('请输入习惯名称～');
         return;
       }
 
@@ -2566,7 +3108,10 @@
               </div>
               <h4 class="font-bold mt-1">${escapeHtml(note.title || note.content?.slice(0, 20) || '无标题')}</h4>
             </div>
-            <span class="text-xs opacity-40 whitespace-nowrap">${note.date || ''}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs opacity-40 whitespace-nowrap">${note.date || ''}</span>
+              <button class="delete-note-btn opacity-40 hover:opacity-100 hover:text-red-400 transition-all text-sm" title="删除" onclick="event.stopPropagation();deleteNote(${note.id})">🗑️</button>
+            </div>
           </div>
           <div class="text-sm opacity-80 wiki-content">${processedContent}</div>
           ${note.related && note.related.length > 0 ? `
@@ -2721,13 +3266,46 @@
       document.getElementById('add-note-modal').classList.remove('hidden');
     }
 
+    function deleteNote(noteId) {
+      const note = data.notes.find(n => n.id === noteId);
+      if (!note) return;
+      const title = note.title || note.content?.slice(0, 20) || '该笔记';
+
+      // 创建确认弹窗
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 z-[9999] flex items-center justify-center';
+      overlay.style.background = 'rgba(0,0,0,0.6)';
+      overlay.innerHTML = `
+        <div class="glass rounded-2xl p-6 max-w-sm w-full mx-4 text-center" style="animation: toastIn 0.2s ease;">
+          <div class="text-3xl mb-3">🗑️</div>
+          <p class="font-bold mb-1">确认删除？</p>
+          <p class="text-sm opacity-60 mb-5">「${escapeHtml(title)}」删除后不可恢复</p>
+          <div class="flex gap-3">
+            <button class="btn-secondary flex-1" id="confirm-cancel">取消</button>
+            <button class="btn-cosmic flex-1" id="confirm-delete" style="background: linear-gradient(135deg, #ef4444, #dc2626);">删除</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#confirm-cancel').onclick = () => overlay.remove();
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      overlay.querySelector('#confirm-delete').onclick = () => {
+        data.notes = data.notes.filter(n => n.id !== noteId);
+        save();
+        renderNotes();
+        overlay.remove();
+        showToast(`已删除「${title}」`);
+      };
+    }
+
     function saveNewNote() {
       const title = document.getElementById('note-title').value;
       const subject = document.getElementById('note-subject').value;
       const content = document.getElementById('note-content').value;
 
       if (!title || !content) {
-        alert('请填写标题和内容～');
+        showToast('请填写标题和内容～');
         return;
       }
 
@@ -2772,6 +3350,25 @@
       renderTomatoAchievements();
       renderDailyJourney();
       updateLevelDisplay();
+    }
+
+    function toggleRocketMenu() {
+      const menu = document.getElementById('rocket-menu');
+      if (!menu) return;
+      menu.classList.toggle('hidden');
+      if (!menu.classList.contains('hidden')) {
+        setTimeout(() => {
+          document.addEventListener('click', closeRocketMenu, { once: true });
+        }, 0);
+      }
+    }
+
+    function closeRocketMenu(e) {
+      const menu = document.getElementById('rocket-menu');
+      if (!menu) return;
+      if (!menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
     }
 
     function exportData() {
