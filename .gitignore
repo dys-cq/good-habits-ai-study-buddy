@@ -3,3 +3,4 @@ node_modules/
 .env.*
 *.log
 .DS_Store
+Wiki 维护手册.md
