@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>好习惯 · AI 学习搭子 ｜ TRAE AI 创造力大赛 Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFF8EC;       /* 暖黄底 */
+    --ink:#3A2E1F;         /* 墨色文字 */
+    --line:#E8DCC1;        /* 浅描线 */
+    --accent:#E58A4A;      /* 暖橘主色 */
+    --accent-2:#7FB069;    /* 草绿辅色 */
+    --accent-3:#7A9CC6;    /* 雾蓝辅色 */
+    --soft:#F3E9D2;        /* 卡片底 */
+  }
+  html,body{background:var(--paper);color:var(--ink);font-family:"Noto Sans SC",system-ui,sans-serif;}
+  .font-hand{font-family:"Ma Shan Zheng","ZCOOL KuaiLe","Noto Sans SC",cursive;}
+  .font-title{font-family:"ZCOOL KuaiLe","Noto Sans SC",sans-serif;letter-spacing:.04em;}
+  .paper{background:var(--paper);}
+  .card{background:var(--soft);border:1.5px solid var(--line);border-radius:18px;box-shadow:0 2px 0 var(--line);}
+  .btn-primary{background:var(--accent);color:#fff;border-radius:9999px;box-shadow:0 3px 0 #C46B2E;transition:transform .08s ease, box-shadow .08s ease;}
+  .btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #C46B2E;}
+  .btn-ghost{background:transparent;border:1.5px dashed var(--line);border-radius:9999px;color:var(--ink);}
+  .chip{background:#fff;border:1.5px solid var(--line);border-radius:9999px;padding:.25rem .75rem;font-size:.85rem;}
+  .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tabbar{background:#FFFDF7;border-top:1.5px solid var(--line);}
+  .tabbar button{color:#8A7A5E;}
+  .tabbar button.active{color:var(--accent);}
+  .dot{width:8px;height:8px;border-radius:9999px;display:inline-block;}
+  .mascot{font-size:64px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.05));}
+  .bubble{background:#fff;border:1.5px solid var(--line);border-radius:18px 18px 18px 4px;padding:.6rem .9rem;max-width:82%;}
+  .bubble.me{background:var(--accent);color:#fff;border-color:var(--accent);border-radius:18px 18px 4px 18px;}
+  .ring-pomodoro{stroke:var(--accent);}
+  .ring-track{stroke:var(--line);}
+  textarea,input{outline:none;}
+  textarea:focus,input:focus{border-color:var(--accent)!important;}
+  .scroll-hide::-webkit-scrollbar{display:none;}
+</style>
+</head>
+<body class="min-h-screen paper">
+
+<!-- 顶栏 -->
+<header class="max-w-3xl mx-auto px-5 pt-6 pb-3 flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <div class="mascot">🦖</div>
+    <div>
+      <div class="font-title text-2xl">好习惯</div>
+      <div class="text-xs text-stone-500 -mt-0.5">小酥陪你把今天过完</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <span class="chip"><span class="dot" style="background:var(--accent-2)"></span> 第 <b id="day-num">1</b> 天</span>
+    <span class="chip">🌱 连续 <b id="streak">0</b> 天</span>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-5 pb-28">
+
+  <!-- ========== 1. 心情打卡 ========== -->
+  <section data-screen="mood" class="screen space-y-4">
+    <div class="card p-5">
+      <div class="text-sm text-stone-500">今天感觉怎么样？</div>
+      <h2 class="font-title text-2xl mt-1">先跟小酥打个招呼 🌿</h2>
+      <p class="text-sm text-stone-600 mt-1">13-18 岁专属：选一个最贴近的心情就好，不评价、不上价值。</p>
+
+      <div class="grid grid-cols-3 gap-3 mt-4" id="mood-grid">
+        <!-- buttons injected -->
+      </div>
+
+      <div class="mt-4 hidden" id="mood-detail">
+        <div class="text-sm text-stone-500 mb-1">想多说一句吗？（可选）</div>
+        <textarea id="mood-note" rows="2" class="w-full bg-white border-2 border-stone-200 rounded-xl p-3 text-sm" placeholder="比如：今天模考砸了 / 跟室友冷战 / 心情莫名其妙的好…"></textarea>
+        <div class="flex gap-2 mt-3">
+          <button class="btn-ghost px-4 py-2 text-sm" onclick="closeMoodDetail()">返回</button>
+          <button class="btn-primary px-5 py-2 text-sm" onclick="saveMood()">保存今日心情</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 小酥回应 -->
+    <div class="card p-4 flex gap-3 hidden" id="mood-reply">
+      <div class="text-3xl">🦖</div>
+      <div class="bubble text-sm leading-relaxed" id="mood-reply-text"></div>
+    </div>
+
+    <!-- 心情日历 -->
+    <div class="card p-5">
+      <div class="flex items-center justify-between">
+        <div class="font-title text-lg">最近 7 天</div>
+        <div class="text-xs text-stone-500">每天 1 颗种子</div>
+      </div>
+      <div class="grid grid-cols-7 gap-2 mt-3" id="mood-strip"></div>
+    </div>
+  </section>
+
+  <!-- ========== 2. 番茄钟 ========== -->
+  <section data-screen="pomo" class="screen hidden space-y-4">
+    <div class="card p-5 text-center">
+      <div class="text-sm text-stone-500">今天的小目标</div>
+      <input id="pomo-task" class="w-full bg-transparent text-center font-title text-xl mt-1 border-b-2 border-dashed border-stone-300 pb-1" placeholder="写一栏：今晚我要做的 1 件事" />
+
+      <div class="relative w-56 h-56 mx-auto mt-5">
+        <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
+          <circle cx="60" cy="60" r="52" fill="none" class="ring-track" stroke-width="8"/>
+          <circle id="ring" cx="60" cy="60" r="52" fill="none" class="ring-pomodoro" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div id="pomo-time" class="font-title text-5xl">25:00</div>
+          <div id="pomo-stage" class="text-xs text-stone-500 mt-1">专注中</div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 mt-2">
+        <button id="pomo-toggle" class="btn-primary px-6 py-2 text-base" onclick="togglePomo()">开始</button>
+        <button class="btn-ghost px-4 py-2 text-sm" onclick="resetPomo()">重置</button>
+        <select id="pomo-mode" class="bg-white border-2 border-stone-200 rounded-full px-3 py-1.5 text-sm" onchange="setPomoMode(this.value)">
+          <option value="25">25 / 5 经典</option>
+          <option value="15">15 / 3 入门</option>
+          <option value="45">45 / 10 深度</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card p-5">
+      <div class="flex items-center justify-between">
+        <div class="font-title text-lg">今日完成</div>
+        <div class="text-xs text-stone-500">每完成 1 个番茄 = +1 朵小花</div>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-3" id="tomato-bucket">
+        <span class="text-sm text-stone-500">还没有完成番茄哦～</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 3. 作业搭子 ========== -->
+  <section data-screen="buddy" class="screen hidden">
+    <div class="card p-5">
+      <div class="flex items-center gap-3">
+        <div class="text-3xl">🦖</div>
+        <div>
+          <div class="font-title text-lg">小酥 · 作业搭子</div>
+          <div class="text-xs text-stone-500">不直接给答案，只陪你拆思路</div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2" id="preset-questions">
+        <button class="chip" data-q="我被一道数学大题卡住了，能给我一个思路吗？">🧮 数学大题</button>
+        <button class="chip" data-q="下周要月考，我该怎么排这一周的自习？">📅 排自习</button>
+        <button class="chip" data-q="今天被点名答不上来，丢脸到想挖洞。">😶 社死瞬间</button>
+        <button class="chip" data-q="读一段《岳阳楼记》给我听，告诉我哪句是中心句。">📜 古文拆解</button>
+        <button class="chip" data-q="帮我把这段英语阅读的生词圈出来，并翻译。">🅰️ 英语阅读</button>
+        <button class="chip" data-q="我跟我妈又吵了，能帮我理一下吗？">💢 跟家长冲突</button>
+      </div>
+
+      <div id="chat" class="mt-4 h-72 overflow-y-auto pr-1 space-y-3 scroll-hide"></div>
+
+      <div class="mt-3 flex gap-2">
+        <input id="chat-input" class="flex-1 bg-white border-2 border-stone-200 rounded-full px-4 py-2 text-sm" placeholder="跟小酥说点啥…（不直接给答案哦）" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="btn-primary px-5 py-2 text-sm" onclick="sendChat()">发送</button>
+      </div>
+
+      <div class="mt-3 text-[11px] text-stone-500 leading-relaxed">
+        * 本 Demo 是前端模拟，对话由本地规则回复；正式版本会接入 LLM，并把过程 Session ID 一并记录到参赛帖。
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 4. 我的 ========== -->
+  <section data-screen="me" class="screen hidden space-y-4">
+    <div class="card p-5">
+      <div class="font-title text-lg">我的一周</div>
+      <div class="grid grid-cols-3 gap-3 mt-3 text-center">
+        <div class="bg-white rounded-xl border-2 border-stone-200 py-3">
+          <div class="text-2xl font-title" id="stat-days">0</div>
+          <div class="text-xs text-stone-500">打卡天数</div>
+        </div>
+        <div class="bg-white rounded-xl border-2 border-stone-200 py-3">
+          <div class="text-2xl font-title" id="stat-tomato">0</div>
+          <div class="text-xs text-stone-500">完成番茄</div>
+        </div>
+        <div class="bg-white rounded-xl border-2 border-stone-200 py-3">
+          <div class="text-2xl font-title" id="stat-chat">0</div>
+          <div class="text-xs text-stone-500">对话轮次</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-5">
+      <div class="font-title text-lg">作品说明（参赛帖草稿）</div>
+      <p class="text-sm text-stone-600 mt-2 leading-relaxed">
+        <b>好习惯 · AI 学习搭子</b> 是一款面向 <b>13-18 岁中学生</b>（初中-高中）的"学习 × 心理"陪伴型 Web H5。
+        它把三件最影响中学生成长的小事——<b>心情、习惯、作业</b>——放进一个温柔的界面：
+        每日心情打卡（不评价、可续写）、番茄钟（拆成"做得动"的小目标）、作业搭子对话（不直接给答案、给思路）。
+      </p>
+      <p class="text-sm text-stone-600 mt-2 leading-relaxed">
+        创作过程由 <b>TRAE IDE</b> 全程承担：UI 组件、状态机、对话规则都由 TRAE Agent 协作完成；
+        所有 prompt、Session ID、迭代记录会随参赛帖一并附上。
+      </p>
+    </div>
+
+    <div class="flex gap-2">
+      <button class="btn-primary px-4 py-2 text-sm" onclick="exportData()">导出数据（JSON）</button>
+      <button class="btn-ghost px-4 py-2 text-sm" onclick="resetAll()">清空记录</button>
+    </div>
+  </section>
+</main>
+
+<!-- 底部 tabbar -->
+<nav class="fixed bottom-0 inset-x-0 tabbar">
+  <div class="max-w-3xl mx-auto grid grid-cols-4">
+    <button data-go="mood" class="active py-3 text-sm flex flex-col items-center gap-0.5" onclick="go('mood',this)">
+      <span class="text-xl">🌿</span><span>心情</span>
+    </button>
+    <button data-go="pomo" class="py-3 text-sm flex flex-col items-center gap-0.5" onclick="go('pomo',this)">
+      <span class="text-xl">⏱️</span><span>番茄</span>
+    </button>
+    <button data-go="buddy" class="py-3 text-sm flex flex-col items-center gap-0.5" onclick="go('buddy',this)">
+      <span class="text-xl">💬</span><span>搭子</span>
+    </button>
+    <button data-go="me" class="py-3 text-sm flex flex-col items-center gap-0.5" onclick="go('me',this)">
+      <span class="text-xl">🪴</span><span>我的</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ========== 工具 ========== */
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const KEY = 'penpal-v0.2';
+const store = {
+  get(){ try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}} },
+  set(o){ localStorage.setItem(KEY, JSON.stringify(o)); }
+};
+let data = Object.assign({
+  days:{},        // { 'YYYY-MM-DD': {mood:1,note:''} }
+  streak:0,
+  tomatoes:0,
+  chats:0,
+  joinDate: new Date().toISOString().slice(0,10)
+}, store.get());
+function save(){ store.set(data); }
+
+/* ========== 屏幕切换 ========== */
+function go(name, btn){
+  $$('.screen').forEach(s=>s.classList.toggle('hidden', s.dataset.screen!==name));
+  $$('.tabbar button').forEach(b=>b.classList.toggle('active', b===btn));
+  if(name==='me') refreshStats();
+}
+
+/* ========== 心情打卡 ========== */
+const MOODS = [
+  {k:1, e:'😀', t:'挺好的', sub:'能扛事',     color:'#FFD66B'},
+  {k:2, e:'🙂', t:'还行',   sub:'先这样',     color:'#C9D8A2'},
+  {k:3, e:'😐', t:'一般',   sub:'开摆',       color:'#C8CFD9'},
+  {k:4, e:'😟', t:'有点烦', sub:'想独处',     color:'#F2BBA5'},
+  {k:5, e:'😢', t:'破防了', sub:'需要被看见', color:'#B7C7E0'},
+];
+function renderMoodGrid(){
+  const g = $('#mood-grid'); g.innerHTML='';
+  MOODS.forEach(m=>{
+    const b = document.createElement('button');
+    b.className = 'card p-3 flex flex-col items-center text-center hover:scale-[1.02] transition';
+    b.style.borderColor = m.color;
+    b.innerHTML = `<div class="text-3xl">${m.e}</div><div class="font-title mt-1">${m.t}</div><div class="text-[11px] text-stone-500">${m.sub}</div>`;
+    b.onclick = ()=> openMoodDetail(m);
+    g.appendChild(b);
+  });
+}
+let pendingMood = null;
+function openMoodDetail(m){
+  pendingMood = m;
+  $('#mood-detail').classList.remove('hidden');
+  $('#mood-note').focus();
+}
+function closeMoodDetail(){
+  pendingMood = null;
+  $('#mood-detail').classList.add('hidden');
+  $('#mood-note').value='';
+}
+function saveMood(){
+  if(!pendingMood) return;
+  const today = new Date().toISOString().slice(0,10);
+  data.days[today] = { mood: pendingMood.k, note: $('#mood-note').value || '' };
+  data.streak = calcStreak();
+  save();
+  const reply = REPLY_BY_MOOD[pendingMood.k]();
+  $('#mood-reply-text').textContent = reply;
+  $('#mood-reply').classList.remove('hidden');
+  closeMoodDetail();
+  renderMoodStrip();
+  $('#day-num').textContent = daysSince(data.joinDate)+1;
+  $('#streak').textContent = data.streak;
+}
+const REPLY_BY_MOOD = {
+  1: ()=>'状态不错～那就把一件"做得到"的小事先做掉，做完会有实感。',
+  2: ()=>'先这样挺好。今天就跟着"现在想做什么"走，不一定非得用力。',
+  3: ()=>'不想动很正常。那就先喝口水、把手机扣过去，30 秒后再决定。',
+  4: ()=>'想独处就独处一会儿。但烦心事别一个人闷，写一句就轻一分。',
+  5: ()=>'破防了不代表不行，只是今天重了。我在这里，你愿意说一句也行，不说也行。',
+};
+function daysSince(d){
+  const a = new Date(d), b = new Date();
+  return Math.floor((b-a)/86400000);
+}
+function calcStreak(){
+  let s=0, t=new Date();
+  for(;;){
+    const k = t.toISOString().slice(0,10);
+    if(!data.days[k]) break;
+    s++; t.setDate(t.getDate()-1);
+  }
+  return s;
+}
+function renderMoodStrip(){
+  const strip = $('#mood-strip'); strip.innerHTML='';
+  const labels = ['日','一','二','三','四','五','六'];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const k = d.toISOString().slice(0,10);
+    const mood = data.days[k]?.mood;
+    const m = MOODS.find(x=>x.k===mood);
+    const cell = document.createElement('div');
+    cell.className = 'rounded-xl border-2 border-stone-200 bg-white py-2 flex flex-col items-center';
+    cell.style.borderColor = m?m.color:'#E8DCC1';
+    cell.innerHTML = `<div class="text-[10px] text-stone-500">${labels[d.getDay()]}</div><div class="text-lg">${m?m.e:'·'}</div>`;
+    strip.appendChild(cell);
+  }
+}
+
+/* ========== 番茄钟 ========== */
+let pomo = { stage:'focus', remain:25*60, running:false, mode:25, _t:null };
+function setPomoMode(v){
+  if(pomo.running) return;
+  pomo.mode = +v;
+  pomo.remain = pomo.mode*60;
+  renderPomo();
+}
+function togglePomo(){
+  pomo.running = !pomo.running;
+  $('#pomo-toggle').textContent = pomo.running ? '暂停' : '开始';
+  if(pomo.running) tickPomo(); else clearInterval(pomo._t);
+}
+function resetPomo(){
+  clearInterval(pomo._t);
+  pomo = { stage:'focus', remain:pomo.mode*60, running:false, mode:pomo.mode, _t:null };
+  $('#pomo-toggle').textContent = '开始';
+  renderPomo();
+}
+function tickPomo(){
+  clearInterval(pomo._t);
+  pomo._t = setInterval(()=>{
+    pomo.remain--;
+    if(pomo.remain<=0){
+      if(pomo.stage==='focus'){
+        data.tomatoes = (data.tomatoes||0)+1;
+        save();
+        renderTomatoBucket();
+        pomo.stage='break';
+        pomo.remain = (pomo.mode===15?3: pomo.mode===45?10:5)*60;
+      } else {
+        pomo.stage='focus';
+        pomo.remain = pomo.mode*60;
+      }
+    }
+    renderPomo();
+  }, 1000);
+}
+function renderPomo(){
+  const m = String(Math.floor(pomo.remain/60)).padStart(2,'0');
+  const s = String(pomo.remain%60).padStart(2,'0');
+  $('#pomo-time').textContent = `${m}:${s}`;
+  $('#pomo-stage').textContent = pomo.stage==='focus' ? '专注中' : '休息中';
+  const total = (pomo.stage==='focus'? pomo.mode : (pomo.mode===15?3:pomo.mode===45?10:5))*60;
+  const offset = 326.7 * (1 - pomo.remain/total);
+  $('#ring').setAttribute('stroke-dashoffset', offset);
+}
+function renderTomatoBucket(){
+  const b = $('#tomato-bucket');
+  if(!data.tomatoes) { b.innerHTML = '<span class="text-sm text-stone-500">还没有完成番茄哦～</span>'; return; }
+  b.innerHTML='';
+  for(let i=0;i<data.tomatoes;i++){
+    const s = document.createElement('span');
+    s.textContent = '🌸';
+    s.className = 'text-xl';
+    b.appendChild(s);
+  }
+}
+
+/* ========== 作业搭子（本地规则回复） ========== */
+const RULES = [
+  { kw:/数学|题|方程|几何|函数|大题|压轴/,
+    reply:()=>'先别动笔。把这道题当侦探题：① 已知条件列 ①②③ ② 问一句"它在求什么" ③ 看一眼草稿本上你画过的图。先告诉我第 1 步。' },
+  { kw:/考试|月考|期中考|期末|模考|高考|中考|自习|安排|时间|计划|番茄/,
+    reply:()=>'别排太满。一周三科轮着来：① 找"提分最快"那 1 科当主攻 ② 每天 2 段 25 分钟 + 1 段 15 分钟整理错题 ③ 周日只复盘不新题。要不要我帮你把这周排一下？' },
+  { kw:/社死|点名|答不上|尴尬|丢脸|被笑/,
+    reply:()=>'被一群人盯着确实不好受。先告诉你一句：别人 30 分钟后就忘了，记住的只有你自己。我们先深呼吸 3 次，再聊聊下次怎么"接住"类似场面。' },
+  { kw:/家长|爸妈|我妈|我爸|又吵|吵架/,
+    reply:()=>'和家人吵大多数时候不是"对错"，是"两个人都很累"。我们先做一件事：把让你最不爽的那一句原话写下来。写完你会发现，它其实没那么可怕。' },
+  { kw:/英语|阅读|生词|完形|语法|短文/,
+    reply:()=>'英语阅读有一个小套路：① 先看题干画关键词 ② 再回原文定位 ③ 最后才读选项。生词先猜上下文，不影响答题的词可以先跳过。要不要贴一段我们练一下？' },
+  { kw:/难过|心情|烦|压力|哭|累|破防|抑郁|emo|撑不住/,
+    reply:()=>'我在。你愿意说一句"刚才发生了什么"吗？只说一句就好；不想说就让我们一起深呼吸 3 次，把肩膀放下来。' },
+  { kw:/古文|文言|诗|古诗|岳阳楼|滕王阁|出师表|诗词/,
+    reply:()=>'古文拆三步：① 先找"中心句"（带"也""哉""矣"的多半是）② 把不懂的字圈出来 ③ 翻译按"主语+动作+意思"补全。先试《岳阳楼记》第一段？' },
+  { kw:/你好|hi|嗨|在吗|你是谁/,
+    reply:()=>'在的～我是小酥。今天想先做点啥：记一下心情、做 1 个番茄、还是拆一道题？' },
+];
+function localReply(q){
+  for(const r of RULES){
+    if(r.kw.test(q)) return r.reply();
+  }
+  return '嗯嗯，我听到了。要不我们把它分成 1 个小问题 + 1 个小动作？先做哪个？';
+}
+function sendChat(pre){
+  const inp = $('#chat-input');
+  const text = (pre || inp.value || '').trim();
+  if(!text) return;
+  appendMsg(text, 'me');
+  inp.value='';
+  data.chats = (data.chats||0)+1; save();
+  setTimeout(()=>{
+    const reply = localReply(text);
+    appendMsg(reply, 'bot');
+  }, 450);
+}
+function appendMsg(text, who){
+  const c = $('#chat');
+  const row = document.createElement('div');
+  row.className = `flex ${who==='me'?'justify-end':'justify-start'}`;
+  row.innerHTML = who==='me'
+    ? `<div class="bubble me">${escapeHtml(text)}</div>`
+    : `<div class="text-2xl mr-2 self-end">🦖</div><div class="bubble">${escapeHtml(text)}</div>`;
+  c.appendChild(row);
+  c.scrollTop = c.scrollHeight;
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ========== 我的 / 统计 ========== */
+function refreshStats(){
+  const dayKeys = Object.keys(data.days||{});
+  $('#stat-days').textContent = dayKeys.length;
+  $('#stat-tomato').textContent = data.tomatoes||0;
+  $('#stat-chat').textContent = data.chats||0;
+  $('#day-num').textContent = daysSince(data.joinDate)+1;
+  $('#streak').textContent = data.streak;
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `penpal-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+function resetAll(){
+  if(!confirm('清空所有本地记录？')) return;
+  localStorage.removeItem(KEY); data = {}; location.reload();
+}
+
+/* ========== 初始化 ========== */
+function init(){
+  renderMoodGrid();
+  renderMoodStrip();
+  renderPomo();
+  renderTomatoBucket();
+  refreshStats();
+  $$('#preset-questions .chip').forEach(c=>c.addEventListener('click',()=>sendChat(c.dataset.q)));
+  $('#streak').textContent = data.streak;
+  $('#day-num').textContent = daysSince(data.joinDate)+1;
+  appendMsg('嗨，我是小酥 🦖 13-18 岁专属学习搭子。今天想先做点啥：记一下心情、做 1 个番茄、还是拆一道题？', 'bot');
+}
+init();
+</script>
+
+<footer class="text-center text-[11px] text-stone-500 pb-4">
+  Demo v0.3 · TRAE AI 创造力大赛 · 学习工作 × 青少年身心健康（公益叠加）· 面向 13-18 岁
+</footer>
+</body>
+</html>

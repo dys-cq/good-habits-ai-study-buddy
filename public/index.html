@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>星际学习联盟 - AI 协同学习系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <!-- KaTeX 数学公式渲染 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    :root {
+      --space-dark: #0f0f23;
+      --space-purple: #1a1a3e;
+      --nebula: #4f46e5;
+      --star-gold: #fbbf24;
+      --aurora: #10b981;
+      --nova: #f472b6;
+      --cosmic-blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, var(--space-dark) 0%, var(--space-purple) 50%, #1e1e3f 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+    }
+
+    .font-space { font-family: 'Orbitron', 'Noto Sans SC', sans-serif; }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
+      border-color: var(--nebula);
+    }
+
+    .btn-cosmic {
+      background: linear-gradient(135deg, var(--nebula), var(--cosmic-blue));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 9999px;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-cosmic:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 12px;
+    }
+
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: var(--nebula);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .mood-btn {
+      padding: 16px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .mood-btn:hover {
+      transform: scale(1.05);
+      border-color: var(--nebula);
+    }
+
+    .mood-btn.selected {
+      border-color: var(--star-gold);
+      background: rgba(251, 191, 36, 0.2);
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+
+    .nav-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--nebula), var(--cosmic-blue));
+      color: white;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring circle {
+      transition: stroke-dashoffset 0.35s;
+      transform-origin: 50% 50%;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .ai-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--nebula), var(--nova));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .chat-bubble {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .chat-bubble.bot {
+      background: rgba(79, 70, 229, 0.3);
+      border: 1px solid rgba(79, 70, 229, 0.5);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-bubble.user {
+      background: linear-gradient(135deg, var(--nebula), var(--cosmic-blue));
+      border-bottom-right-radius: 4px;
+      margin-left: auto;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(59, 130, 246, 0.2));
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .planet {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      position: relative;
+    }
+
+    .planet::after {
+      content: '';
+      position: absolute;
+      width: 80px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: rotate(-20deg);
+      top: 50%;
+      left: 50%;
+      margin-left: -40px;
+      margin-top: -10px;
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--star-gold), var(--nova));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--nebula);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .cursor-blink {
+      animation: blink 1s infinite;
+      color: var(--nebula);
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .habit-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .task-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .task-item:hover {
+      background: rgba(79, 70, 229, 0.2);
+      border-color: var(--nebula);
+    }
+
+    .task-item.active {
+      background: rgba(79, 70, 229, 0.3);
+      border-color: var(--nebula);
+    }
+
+    .task-item.completed {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .check-circle {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--nebula);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-circle.checked {
+      background: var(--nebula);
+      border-color: var(--nebula);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--space-purple);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    input, textarea, select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: white;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--nebula);
+    }
+
+    ::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tag-math { background: rgba(239, 68, 68, 0.3); border: 1px solid rgba(239, 68, 68, 0.5); }
+    .tag-english { background: rgba(59, 130, 246, 0.3); border: 1px solid rgba(59, 130, 246, 0.5); }
+    .tag-physics { background: rgba(16, 185, 129, 0.3); border: 1px solid rgba(16, 185, 129, 0.5); }
+    .tag-chemistry { background: rgba(245, 158, 11, 0.3); border: 1px solid rgba(245, 158, 11, 0.5); }
+    .tag-chinese { background: rgba(139, 92, 246, 0.3); border: 1px solid rgba(139, 92, 246, 0.5); }
+    .tag-history { background: rgba(236, 72, 153, 0.3); border: 1px solid rgba(236, 72, 153, 0.5); }
+
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="scrollbar-hide">
+  <!-- 星空背景 -->
+  <div class="stars" id="stars"></div>
+
+  <!-- 主容器 -->
+  <div class="relative z-10 max-w-4xl mx-auto px-4 py-6 pb-24">
+
+    <!-- 顶部导航 -->
+    <header class="glass rounded-2xl p-4 mb-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="text-4xl floating">🚀</div>
+        <div>
+          <h1 class="font-space text-xl gradient-text">星际学习联盟</h1>
+          <p class="text-xs opacity-60">AI 协同学习系统 v2.0</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm opacity-60" id="streak-display">🔥 连续 0 天</span>
+        <div class="flex items-center gap-2">
+          <span id="header-level" class="text-sm font-bold">🌍 地球</span>
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-lg">
+            ⭐
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主要功能区 -->
+    <main>
+      <!-- 每日学习之旅 -->
+      <div class="glass rounded-2xl p-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold gradient-text">🚀 今日学习之旅</h2>
+          <div class="text-xs opacity-60" id="journey-date"></div>
+        </div>
+
+        <!-- 阶段进度条 -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col items-center gap-1">
+            <div id="journey-mood" class="w-12 h-12 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-xl transition-all">💭</div>
+            <div class="text-xs opacity-70">心情打卡</div>
+          </div>
+          <div id="journey-line-0" class="flex-1 h-0.5 bg-white/20 transition-all mx-2"></div>
+          <div class="flex flex-col items-center gap-1">
+            <div id="journey-study" class="w-12 h-12 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-xl transition-all">📚</div>
+            <div class="text-xs opacity-70">专注学习</div>
+          </div>
+          <div id="journey-line-1" class="flex-1 h-0.5 bg-white/20 transition-all mx-2"></div>
+          <div class="flex flex-col items-center gap-1">
+            <div id="journey-habit" class="w-12 h-12 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-xl transition-all">✨</div>
+            <div class="text-xs opacity-70">习惯打卡</div>
+          </div>
+          <div id="journey-line-2" class="flex-1 h-0.5 bg-white/20 transition-all mx-2"></div>
+          <div class="flex flex-col items-center gap-1">
+            <div id="journey-summary" class="w-12 h-12 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-xl transition-all">📝</div>
+            <div class="text-xs opacity-70">今日总结</div>
+          </div>
+        </div>
+
+        <!-- 进度文字 + 下一步按钮 -->
+        <div class="flex items-center justify-between gap-3">
+          <div id="journey-progress-text" class="text-sm opacity-70">0/4 阶段完成</div>
+          <button id="journey-next-btn" class="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all">下一步</button>
+        </div>
+      </div>
+
+      <!-- 紧凑统计卡片 -->
+      <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="stat-card !p-3 text-center">
+          <div class="text-2xl font-bold gradient-text" id="stat-days">0</div>
+          <div class="text-xs opacity-60 mt-1">学习天数</div>
+        </div>
+        <div class="stat-card !p-3 text-center">
+          <div class="text-2xl font-bold gradient-text" id="stat-tomato">0</div>
+          <div class="text-xs opacity-60 mt-1">番茄数</div>
+        </div>
+        <div class="stat-card !p-3 text-center">
+          <div class="text-2xl font-bold gradient-text" id="stat-moods">0</div>
+          <div class="text-xs opacity-60 mt-1">心情记录</div>
+        </div>
+        <div class="stat-card !p-3 text-center">
+          <div class="text-2xl font-bold gradient-text" id="stat-chat">0</div>
+          <div class="text-xs opacity-60 mt-1">AI 对话</div>
+        </div>
+      </div>
+
+      <!-- 功能标签页 -->
+      <div class="glass rounded-2xl overflow-hidden">
+        <div class="flex overflow-x-auto scrollbar-hide">
+          <button class="nav-item active flex-1 min-w-[100px]" onclick="showTab('mood', event)">
+            <div class="text-2xl mb-1">💭</div>
+            <div class="text-xs">心情</div>
+          </button>
+          <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('study', event)">
+            <div class="text-2xl mb-1">📚</div>
+            <div class="text-xs">AI 搭子</div>
+          </button>
+          <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('timer', event)">
+            <div class="text-2xl mb-1">⏱️</div>
+            <div class="text-xs">番茄钟</div>
+          </button>
+          <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('plan', event)">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="text-xs">学习计划</div>
+          </button>
+          <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('habits', event)">
+            <div class="text-2xl mb-1">✨</div>
+            <div class="text-xs">好习惯</div>
+          </button>
+          <button class="nav-item flex-1 min-w-[100px]" onclick="showTab('notes', event)">
+            <div class="text-2xl mb-1">📝</div>
+            <div class="text-xs">知识库</div>
+          </button>
+        </div>
+
+        <!-- 标签页内容 -->
+        <div class="p-6">
+
+          <!-- 心情日记 -->
+          <div id="tab-mood" class="tab-content active">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">💭</span> 今日心情日志
+            </h2>
+
+            <div class="mb-6">
+              <p class="text-sm opacity-70 mb-4">嘿，小伙伴～今天感觉怎么样？选择一个最贴近的心情吧</p>
+
+              <div class="grid grid-cols-3 md:grid-cols-5 gap-3" id="mood-grid">
+                <!-- 心情按钮由 JS 生成 -->
+              </div>
+            </div>
+
+            <!-- 心情详情 -->
+            <div id="mood-detail" class="hidden">
+              <div class="card p-4">
+                <label class="block text-sm opacity-70 mb-2">想多说一句吗？（可选）</label>
+                <textarea id="mood-note" rows="3" class="mb-3" placeholder="比如：今天模考砸了 / 跟室友冷战 / 心情莫名其妙的好…"></textarea>
+                <div class="flex gap-2">
+                  <button class="btn-secondary flex-1" onclick="closeMoodDetail()">返回</button>
+                  <button class="btn-cosmic flex-1" onclick="saveMood()">保存心情</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI 回复 -->
+            <div id="mood-reply" class="hidden mt-4">
+              <div class="flex gap-3">
+                <div class="ai-avatar">🤖</div>
+                <div class="chat-bubble bot flex-1" id="mood-reply-text"></div>
+              </div>
+            </div>
+
+            <!-- 7天心情日历 -->
+            <div class="card p-4 mt-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold">最近 7 天心情轨迹</h3>
+                <span class="text-xs opacity-60">每天 1 颗星星</span>
+              </div>
+              <div class="grid grid-cols-7 gap-2" id="mood-calendar"></div>
+            </div>
+          </div>
+
+          <!-- AI 学习搭子 -->
+          <div id="tab-study" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">📚</span> AI 学习搭子 - 小星
+            </h2>
+
+            <div class="card p-4 mb-4">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="ai-avatar">🤖</div>
+                <div>
+                  <div class="font-bold">我是小星，你的 AI 学习搭子</div>
+                  <div class="text-xs opacity-60">不直接给答案，陪你拆思路 💡</div>
+                </div>
+              </div>
+
+              <!-- 快捷问题 -->
+              <div class="mb-4">
+                <p class="text-sm opacity-70 mb-2">试试这些：</p>
+                <div class="flex flex-wrap gap-2">
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('我被一道数学大题卡住了，能给我一个思路吗？')">🧮 数学大题</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('下周要月考，我该怎么排这一周的自习？')">📅 排自习</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('帮我翻译这段英语，并分析语法结构')">🅰️ 英语分析</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('读一段《滕王阁序》给我听，告诉我重点句')">📜 古文拆解</button>
+                  <button class="btn-secondary text-sm" onclick="sendStudyChat('物理大题：分析运动过程，帮我列出已知量')">🔬 物理分析</button>
+                </div>
+              </div>
+
+              <!-- 科目选择 -->
+              <div class="mb-4">
+                <label class="text-sm opacity-70 mb-2 block">选择科目：</label>
+                <select id="study-subject" class="mb-3">
+                  <option value="数学">🧮 数学</option>
+                  <option value="英语">🅰️ 英语</option>
+                  <option value="语文">📖 语文</option>
+                  <option value="物理">🔬 物理</option>
+                  <option value="化学">⚗️ 化学</option>
+                  <option value="生物">🧬 生物</option>
+                  <option value="历史">📜 历史</option>
+                  <option value="地理">🌍 地理</option>
+                  <option value="政治">🏛️ 政治</option>
+                </select>
+              </div>
+
+              <!-- 聊天历史 -->
+              <div class="h-96 overflow-y-auto mb-4 space-y-2 scrollbar-hide" id="study-chat"></div>
+
+              <!-- 输入框 -->
+              <div class="flex gap-2">
+                <input id="study-input" placeholder="问小星一道题或聊聊学习烦恼…" onkeypress="if(event.key==='Enter')sendStudyChat()"></input>
+                <button class="btn-cosmic" onclick="sendStudyChat()">发送</button>
+              </div>
+            </div>
+
+            <div class="text-xs opacity-50 text-center">
+              💡 小星会引导你思考，不会直接给答案哦～
+            </div>
+          </div>
+
+          <!-- 番茄钟 -->
+          <div id="tab-timer" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">⏱️</span> 智能番茄钟
+            </h2>
+
+            <!-- 今日任务列表 -->
+            <div class="card p-4 mb-4" id="today-tasks-container">
+              <div id="today-tasks">
+                <p class="text-sm opacity-50">还没有今日学习计划哦～</p>
+              </div>
+            </div>
+
+            <div class="card p-6 text-center">
+              <div id="current-task-display" class="mb-4 text-sm opacity-75">
+                选择一个任务开始专注吧 🎯
+              </div>
+
+              <!-- 环形进度 -->
+              <div class="relative w-64 h-64 mx-auto mb-6">
+                <svg class="w-full h-full progress-ring" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                  <circle id="progress-ring" cx="60" cy="60" r="52" fill="none" stroke="url(#gradient)" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#4f46e5"/>
+                      <stop offset="100%" style="stop-color:#3b82f6"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div id="pomo-time" class="text-5xl font-bold gradient-text">25:00</div>
+                  <div id="pomo-stage" class="text-sm opacity-60 mt-2">选择任务，开始专注...</div>
+                </div>
+              </div>
+
+              <!-- 控制按钮 -->
+              <div class="flex items-center justify-center gap-3 mb-6">
+                <button id="pomo-toggle" class="btn-cosmic" onclick="togglePomo()">开始专注</button>
+                <button class="btn-secondary" onclick="resetPomo()">重置</button>
+                <select id="pomo-mode" onchange="setPomoMode(this.value)" class="bg-white/10 border border-white/20 rounded-full px-3 py-2 text-sm">
+                  <option value="25">25分钟</option>
+                  <option value="15">15分钟</option>
+                  <option value="45">45分钟</option>
+                </select>
+              </div>
+
+              <!-- 当前任务标签 -->
+              <div id="active-task-label" class="text-xs opacity-50 hidden">
+                正在执行：<span id="active-task-name"></span>
+              </div>
+
+              <!-- 边学边问按钮 - Task 8: 番茄钟→学习搭子联动 -->
+              <button id="study-bot-float-btn" class="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full shadow-lg flex items-center justify-center text-2xl z-50 hover:scale-110 transition-transform hidden" onclick="openStudyBotFromTimer()" title="边学边问">
+                🤖
+              </button>
+            </div>
+
+            <!-- 今日成就 -->
+            <div class="card p-4 mt-4">
+              <h3 class="font-bold mb-3">🌟 今日成就</h3>
+              <div class="flex flex-wrap gap-2" id="tomato-achievements">
+                <span class="opacity-50 text-sm">还没有完成番茄哦～</span>
+              </div>
+            </div>
+
+            <!-- AI 小贴士 -->
+            <div class="card p-4 mt-4">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">💡</span>
+                <span class="font-bold">小星贴士</span>
+              </div>
+              <p class="text-sm opacity-80" id="pomo-tip">专注的时候把手机放到看不见的地方，效率提升 50% 哦！</p>
+            </div>
+          </div>
+
+          <!-- 学习计划 -->
+          <div id="tab-plan" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">🎯</span> AI 学习规划师
+            </h2>
+
+            <div class="card p-4 mb-4">
+              <div class="mb-4">
+                <label class="block text-sm opacity-70 mb-2">学习目标（想要达到什么？）</label>
+                <input id="plan-goal" placeholder="比如：下次月考进步 20 名 / 数学突破 120 分" />
+              </div>
+
+              <div class="mb-4">
+                <label class="block text-sm opacity-70 mb-2">每天可用时间（小时）</label>
+                <input id="plan-time" type="number" min="1" max="8" value="3" />
+              </div>
+
+              <div class="mb-4">
+                <label class="block text-sm opacity-70 mb-2">重点科目</label>
+                <div class="flex flex-wrap gap-2" id="subject-tags">
+                  <span class="tag tag-math cursor-pointer selected" onclick="toggleSubject(this, '数学')">🧮 数学</span>
+                  <span class="tag tag-english cursor-pointer selected" onclick="toggleSubject(this, '英语')">🅰️ 英语</span>
+                  <span class="tag tag-physics cursor-pointer" onclick="toggleSubject(this, '物理')">🔬 物理</span>
+                  <span class="tag tag-chemistry cursor-pointer" onclick="toggleSubject(this, '化学')">⚗️ 化学</span>
+                  <span class="tag tag-chinese cursor-pointer" onclick="toggleSubject(this, '语文')">📖 语文</span>
+                  <span class="tag tag-history cursor-pointer" onclick="toggleSubject(this, '历史')">📜 历史</span>
+                </div>
+              </div>
+
+              <button class="btn-cosmic w-full" onclick="generatePlan()">
+                🚀 让 AI 生成学习计划
+              </button>
+            </div>
+
+            <!-- 生成的计划 -->
+            <div id="plan-result" class="hidden">
+              <div class="card p-4">
+                <h3 class="font-bold mb-3 flex items-center gap-2">
+                  <span class="text-xl">📋</span> 你的专属学习计划
+                </h3>
+                <div id="plan-content" class="prose prose-invert max-w-none"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 好习惯 -->
+          <div id="tab-habits" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">✨</span> 养成好习惯
+            </h2>
+
+            <div class="mb-4">
+              <button class="btn-cosmic" onclick="showAddHabitModal()">+ 添加新习惯</button>
+            </div>
+
+            <div id="habits-list">
+              <!-- 习惯列表由 JS 生成 -->
+            </div>
+
+            <!-- AI 习惯建议 -->
+            <div class="card p-4 mt-4">
+              <h3 class="font-bold mb-3 flex items-center gap-2">
+                <span class="text-xl">🤖</span> AI 习惯建议
+              </h3>
+              <div id="habit-suggestions">
+                <div class="space-y-2">
+                  <div class="habit-card flex items-center gap-3">
+                    <span class="text-2xl">🌅</span>
+                    <div class="flex-1">
+                      <div class="font-bold text-sm">早起 10 分钟</div>
+                      <div class="text-xs opacity-60">提前规划一天的学习</div>
+                    </div>
+                    <button class="btn-secondary text-xs" onclick="addHabit('早起 10 分钟', '🌅')">添加</button>
+                  </div>
+                  <div class="habit-card flex items-center gap-3">
+                    <span class="text-2xl">📖</span>
+                    <div class="flex-1">
+                      <div class="font-bold text-sm">每天背 10 个单词</div>
+                      <div class="text-xs opacity-60">坚持 30 天词汇量翻倍</div>
+                    </div>
+                    <button class="btn-secondary text-xs" onclick="addHabit('每天背 10 个单词', '📖')">添加</button>
+                  </div>
+                  <div class="habit-card flex items-center gap-3">
+                    <span class="text-2xl">🏃</span>
+                    <div class="flex-1">
+                      <div class="font-bold text-sm">课间活动 5 分钟</div>
+                      <div class="text-xs opacity-60">保护视力，放松身心</div>
+                    </div>
+                    <button class="btn-secondary text-xs" onclick="addHabit('课间活动 5 分钟', '🏃')">添加</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 知识库 -->
+          <div id="tab-notes" class="tab-content">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">📝</span> 我的知识星球
+            </h2>
+
+            <div class="mb-4">
+              <button class="btn-cosmic" onclick="showAddNoteModal()">+ 记录新知识</button>
+            </div>
+
+            <!-- 知识分类 -->
+            <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+              <button class="btn-secondary text-sm whitespace-nowrap active" onclick="filterNotes('all')">全部</button>
+              <button class="btn-secondary text-sm whitespace-nowrap" onclick="filterNotes('math')">🧮 数学</button>
+              <button class="btn-secondary text-sm whitespace-nowrap" onclick="filterNotes('english')">🅰️ 英语</button>
+              <button class="btn-secondary text-sm whitespace-nowrap" onclick="filterNotes('physics')">🔬 物理</button>
+            </div>
+
+            <div id="notes-list" class="space-y-3">
+              <!-- 笔记列表 -->
+            </div>
+
+            <!-- AI 总结 -->
+            <div class="card p-4 mt-4">
+              <h3 class="font-bold mb-3 flex items-center gap-2">
+                <span class="text-xl">🤖</span> AI 学习总结
+              </h3>
+              <div id="ai-summary" class="text-sm opacity-80">
+                <p>本周你学习了 <span class="gradient-text font-bold">3</span> 个新知识点，完成了 <span class="gradient-text font-bold">12</span> 个番茄。</p>
+                <p class="mt-2">💡 建议：数学错题本需要复习一下哦～</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 底部快捷操作 -->
+      <div class="mt-6 grid grid-cols-2 gap-4">
+        <button class="card p-4 text-left" onclick="exportData()">
+          <div class="text-2xl mb-1">📤</div>
+          <div class="font-bold">导出数据</div>
+          <div class="text-xs opacity-60">保存学习记录</div>
+        </button>
+        <button class="card p-4 text-left" onclick="resetAll()">
+          <div class="text-2xl mb-1">🔄</div>
+          <div class="font-bold">重新开始</div>
+          <div class="text-xs opacity-60">清空所有记录</div>
+        </button>
+      </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="text-center text-xs opacity-50 mt-8 pb-4">
+      <p>🚀 星际学习联盟 · TRAE AI 创造力大赛 · 青少年身心健康公益赛道</p>
+      <p class="mt-1">Powered by 字节豆包大模型</p>
+    </footer>
+  </div>
+
+  <!-- 添加习惯弹窗 -->
+  <div id="add-habit-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold mb-4">✨ 添加新习惯</h3>
+      <div class="mb-4">
+        <label class="block text-sm opacity-70 mb-2">习惯名称</label>
+        <input id="new-habit-name" placeholder="比如：每天做 10 道数学题" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm opacity-70 mb-2">图标</label>
+        <div class="flex gap-2 flex-wrap">
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('🌟')">🌟</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('📚')">📚</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('💪')">💪</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('🎯')">🎯</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('⏰')">⏰</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('🌈')">🌈</button>
+          <button class="text-2xl p-2 hover:bg-white/10 rounded" onclick="selectEmoji('🚀')">🚀</button>
+        </div>
+        <div id="selected-emoji" class="text-4xl text-center mt-2">🌟</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-secondary flex-1" onclick="closeModal('add-habit-modal')">取消</button>
+        <button class="btn-cosmic flex-1" onclick="saveNewHabit()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加笔记弹窗 -->
+  <div id="add-note-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 class="text-xl font-bold mb-4">📝 记录新知识</h3>
+      <div class="mb-4">
+        <label class="block text-sm opacity-70 mb-2">标题</label>
+        <input id="note-title" placeholder="这道题教会我..." />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm opacity-70 mb-2">科目</label>
+        <select id="note-subject">
+          <option value="math">🧮 数学</option>
+          <option value="english">🅰️ 英语</option>
+          <option value="physics">🔬 物理</option>
+          <option value="chemistry">⚗️ 化学</option>
+          <option value="chinese">📖 语文</option>
+          <option value="other">📝 其他</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm opacity-70 mb-2">内容</label>
+        <textarea id="note-content" rows="5" placeholder="记录今天学到的重要知识点..."></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn-secondary flex-1" onclick="closeModal('add-note-modal')">取消</button>
+        <button class="btn-cosmic flex-1" onclick="saveNewNote()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 全局状态 ==========
+    const API_BASE = '';
+    const KEY = 'galaxy-learning-v2';
+    let selectedEmoji = '🌟';
+    let selectedMood = null;
+    let selectedSubjects = ['数学', '英语'];
+
+    let store = {
+      get() {
+        try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} }
+      },
+      set(o) { localStorage.setItem(KEY, JSON.stringify(o)); }
+    };
+
+    let data = Object.assign({
+      days: {},
+      streak: 0,
+      tomatoes: 0,
+      lastTomatoDate: null,
+      chats: 0,
+      moodCount: 0,
+      habits: [
+        { id: 1, name: '每天早起 10 分钟', emoji: '🌅', completed: [], target: 30 },
+        { id: 2, name: '做完作业检查一遍', emoji: '✅', completed: [], target: 30 },
+        { id: 3, name: '课间眺望远方', emoji: '👀', completed: [], target: 30 }
+      ],
+      notes: [],
+      studyMessages: [
+        { role: 'system', content: '你是小星，一个专为13-18岁中学生服务的AI学习搭子。不直接给答案，而是引导思考，用青少年能理解的语言，幽默有趣，善于拆解复杂问题。' }
+      ],
+      // 学习计划相关
+      currentPlan: null,  // 当前学习计划
+      planTasks: [],      // 计划中的任务列表
+      todayMood: null,    // 今日心情
+      joinDate: new Date().toISOString().slice(0, 10),
+      exp: 0,          // 经验值
+      level: 1,        // 等级
+    }, store.get());
+
+    // ========== 工具函数 ==========
+    function save() { store.set(data); }
+
+    function daysSince(d) {
+      return Math.floor((new Date() - new Date(d)) / 86400000);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+      createStars();
+      renderMoodGrid();
+      renderMoodCalendar();
+      renderHabits();
+      renderNotes();
+      refreshStats();
+      updateStreak();
+      updateLevelDisplay();
+      showTodayTasks();  // 初始化显示今日任务
+      appendStudyMessage('嗨，我是小星 🚀 你的 AI 学习搭子！有什么学习上的问题想聊聊吗？或者选一个快捷问题试试？', 'bot');
+      renderDailyJourney();
+    }
+
+    // ========== 每日学习之旅 ==========
+    function getTodayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getDailyProgress() {
+      const today = getTodayKey();
+      const todayData = data.days[today] || {};
+
+      // 阶段1: 心情打卡
+      const moodDone = !!todayData.mood;
+
+      // 阶段2: 专注学习（今天完成了番茄或任务）
+      const todayTasks = (data.planTasks || []).filter(t =>
+        t.completed && t.completedAt && t.completedAt.startsWith(today)
+      );
+      const studyDone = todayTasks.length > 0 || (data.tomatoes > 0 && data.lastTomatoDate === today);
+
+      // 阶段3: 习惯打卡
+      const habitDone = (data.habits || []).some(h =>
+        h.completed && h.completed.includes(today)
+      );
+
+      // 阶段4: 今日总结
+      const summaryDone = !!todayData.summary;
+
+      return { moodDone, studyDone, habitDone, summaryDone };
+    }
+
+    // ========== 游戏化成长体系 ==========
+    const PLANETS = [
+      { name: '地球', emoji: '🌍', minExp: 0 },
+      { name: '月球', emoji: '🌙', minExp: 100 },
+      { name: '火星', emoji: '🔴', minExp: 300 },
+      { name: '木星', emoji: '🪐', minExp: 600 },
+      { name: '土星', emoji: '🪐', minExp: 1000 },
+      { name: '太阳系', emoji: '☀️', minExp: 1500 }
+    ];
+
+    function addExp(amount, reason) {
+      const oldLevel = data.level || 1;
+      data.exp = (data.exp || 0) + amount;
+
+      // 计算等级
+      let newLevel = 1;
+      for (let i = PLANETS.length - 1; i >= 0; i--) {
+        if (data.exp >= PLANETS[i].minExp) {
+          newLevel = i + 1;
+          break;
+        }
+      }
+      data.level = newLevel;
+
+      // 升级提示
+      if (newLevel > oldLevel) {
+        const planet = PLANETS[newLevel - 1];
+        setTimeout(() => {
+          alert(`🎉 恭喜升级！\n\n你已到达「${planet.emoji} ${planet.name}」\n经验值：${data.exp}\n\n继续探索宇宙吧！🚀`);
+        }, 500);
+      }
+
+      save();
+      updateLevelDisplay();
+    }
+
+    function updateLevelDisplay() {
+      const planet = PLANETS[(data.level || 1) - 1];
+      const nextPlanet = PLANETS[data.level] || null;
+      const headerLevel = document.getElementById('header-level');
+      if (headerLevel) {
+        if (nextPlanet) {
+          const progress = ((data.exp - planet.minExp) / (nextPlanet.minExp - planet.minExp) * 100).toFixed(0);
+          headerLevel.innerHTML = `${planet.emoji} ${planet.name} <span class="text-xs opacity-60">(${data.exp}/${nextPlanet.minExp} → ${nextPlanet.emoji})</span>`;
+        } else {
+          headerLevel.innerHTML = `${planet.emoji} ${planet.name} <span class="text-xs opacity-60">(${data.exp} EXP)</span>`;
+        }
+      }
+    }
+
+    function renderDailyJourney() {
+      const today = getTodayKey();
+      const dateEl = document.getElementById('journey-date');
+      if (dateEl) {
+        const d = new Date();
+        const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        dateEl.textContent = `${today} ${weekDays[d.getDay()]}`;
+      }
+
+      const progress = getDailyProgress();
+      const stages = [
+        { key: 'mood', done: progress.moodDone, icon: '💭', label: '心情打卡', tab: 'mood' },
+        { key: 'study', done: progress.studyDone, icon: '📚', label: '专注学习', tab: 'timer' },
+        { key: 'habit', done: progress.habitDone, icon: '✨', label: '习惯打卡', tab: 'habits' },
+        { key: 'summary', done: progress.summaryDone, icon: '📝', label: '今日总结', tab: 'study' }
+      ];
+
+      const completedCount = stages.filter(s => s.done).length;
+      const nextStage = stages.find(s => !s.done);
+
+      // 渲染阶段圆圈
+      stages.forEach((stage, i) => {
+        const circle = document.getElementById(`journey-${stage.key}`);
+        if (circle) {
+          circle.className = stage.done
+            ? 'w-12 h-12 rounded-full bg-green-500/30 border-2 border-green-400 flex items-center justify-center text-xl transition-all'
+            : 'w-12 h-12 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-xl transition-all';
+          circle.innerHTML = stage.done ? '✓' : stage.icon;
+        }
+
+        // 连线
+        if (i < stages.length - 1) {
+          const line = document.getElementById(`journey-line-${i}`);
+          if (line) {
+            line.className = stage.done
+              ? 'flex-1 h-0.5 bg-green-400 transition-all mx-2'
+              : 'flex-1 h-0.5 bg-white/20 transition-all mx-2';
+          }
+        }
+      });
+
+      // 更新进度文字和按钮
+      const progressText = document.getElementById('journey-progress-text');
+      if (progressText) {
+        progressText.textContent = `${completedCount}/4 阶段完成`;
+      }
+
+      const nextBtn = document.getElementById('journey-next-btn');
+      if (nextBtn) {
+        if (nextStage) {
+          nextBtn.textContent = `下一步：${nextStage.label}`;
+          nextBtn.onclick = () => {
+            if (nextStage.key === 'summary') {
+              generateDailySummary();
+            } else {
+              showTab(nextStage.tab);
+            }
+          };
+          nextBtn.classList.remove('hidden');
+        } else {
+          nextBtn.textContent = '🎉 今日之旅已完成！';
+          nextBtn.onclick = null;
+        }
+      }
+    }
+
+    async function generateDailySummary() {
+      showTab('study');
+
+      const today = getTodayKey();
+      const progress = getDailyProgress();
+      const todayTasks = (data.planTasks || []).filter(t =>
+        t.completed && t.completedAt && t.completedAt.startsWith(today)
+      );
+      const todayHabits = (data.habits || []).filter(h =>
+        h.completed && h.completed.includes(today)
+      );
+      const mood = data.days[today]?.mood;
+      const moodText = mood ? MOODS.find(m => m.k === mood)?.t : '未记录';
+
+      const summaryContent = `今日学习总结：
+- 心情：${moodText}
+- 完成任务：${todayTasks.length}个
+- 完成习惯：${todayHabits.length}个
+- 番茄总数：${data.tomatoes}
+- AI对话：${data.chats}次
+
+完成情况：${Object.entries(progress).map(([k,v]) => v ? '✓' : '✗').join(' ')}`;
+
+      // 在聊天界面显示总结
+      appendStudyMessage('请帮我生成今天的学习总结', 'user');
+
+      const messageId = 'msg-' + Date.now();
+      const messageDiv = document.createElement('div');
+      messageDiv.id = messageId;
+      messageDiv.className = 'flex justify-start mb-3';
+      messageDiv.innerHTML = `
+        <div class="flex items-start gap-2">
+          <div class="ai-avatar mr-2 flex-shrink-0">🤖</div>
+          <div class="flex-1 max-w-[85%]">
+            <div class="chat-bubble bot" style="white-space: pre-wrap;">
+              <span class="streaming-text"></span><span class="cursor-blink">▋</span>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('study-chat').appendChild(messageDiv);
+      scrollToBottom();
+
+      try {
+        data.studyMessages.push({ role: 'user', content: `请根据以下今日数据，生成一份温暖的每日学习总结和鼓励：\n${summaryContent}` });
+
+        const response = await fetch(API_BASE + '/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'system', content: '你是小星，请根据用户今日的学习数据，生成一份温暖的每日学习总结。包括：1. 今日成就回顾 2. 值得肯定的地方 3. 明天的小建议。语气温暖鼓励，适合15-18岁中学生。控制在200字以内。' },
+              { role: 'user', content: summaryContent }
+            ],
+            userId: 'user'
+          })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const lineData = line.slice(6);
+              if (lineData === '[DONE]') {
+                const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                if (cursor) cursor.remove();
+              } else {
+                try {
+                  const parsed = JSON.parse(lineData);
+                  if (parsed.content) {
+                    fullContent += parsed.content;
+                    updateStreamingMessage(messageId, fullContent);
+                  }
+                } catch (e) {}
+              }
+            }
+          }
+        }
+
+        // 保存总结到今日数据
+        if (!data.days[today]) data.days[today] = {};
+        data.days[today].summary = fullContent;
+        data.studyMessages.push({ role: 'assistant', content: fullContent });
+        save();
+        renderDailyJourney();
+
+      } catch (err) {
+        const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+        if (cursor) cursor.remove();
+        document.querySelector(`#${messageId} .streaming-text`).textContent = '今天辛苦啦！不管完成了多少，你都在变得更好 💪';
+
+        if (!data.days[today]) data.days[today] = {};
+        data.days[today].summary = '今天辛苦啦！不管完成了多少，你都在变得更好 💪';
+        save();
+        renderDailyJourney();
+      }
+    }
+
+    function createStars() {
+      const stars = document.getElementById('stars');
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        stars.appendChild(star);
+      }
+    }
+
+    // ========== 标签页切换 ==========
+    function showTab(tab, evt) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      // 支持程序化调用（无事件对象时，通过 data-tab 属性查找对应按钮）
+      const navBtn = evt ? evt.currentTarget : document.querySelector(`.nav-item[onclick*="showTab('${tab}'"]`);
+      if (navBtn) navBtn.classList.add('active');
+    }
+
+    // ========== 心情打卡 ==========
+    const MOODS = [
+      { k: 5, e: '😄', t: '超棒', sub: '宇宙无敌', color: '#fbbf24' },
+      { k: 4, e: '🙂', t: '不错', sub: '稳步前进', color: '#34d399' },
+      { k: 3, e: '😐', t: '一般', sub: '正常运转', color: '#60a5fa' },
+      { k: 2, e: '😔', t: '有点烦', sub: '需要释放', color: '#f472b6' },
+      { k: 1, e: '😢', t: '破防了', sub: '需要抱抱', color: '#a78bfa' }
+    ];
+
+    function renderMoodGrid() {
+      const grid = document.getElementById('mood-grid');
+      grid.innerHTML = MOODS.map(m => `
+        <button class="mood-btn" onclick="selectMood(${m.k}, '${m.e}')" id="mood-${m.k}">
+          <div class="text-4xl mb-2">${m.e}</div>
+          <div class="font-bold">${m.t}</div>
+          <div class="text-xs opacity-60">${m.sub}</div>
+        </button>
+      `).join('');
+    }
+
+    function selectMood(k, e) {
+      selectedMood = { k, e };
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('mood-' + k).classList.add('selected');
+      document.getElementById('mood-detail').classList.remove('hidden');
+      document.getElementById('mood-reply').classList.add('hidden');
+    }
+
+    function closeMoodDetail() {
+      selectedMood = null;
+      document.getElementById('mood-detail').classList.add('hidden');
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    }
+
+    async function saveMood() {
+      if (!selectedMood) return;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const note = document.getElementById('mood-note').value;
+
+      data.days[today] = { mood: selectedMood.k, note };
+      data.moodCount++;
+      addExp(5, '记录心情');
+      data.streak = calcStreak();
+      save();
+
+      // 保存心情信息用于后续对话
+      const moodInfo = {
+        level: selectedMood.k,
+        emoji: selectedMood.e,
+        text: MOODS.find(m => m.k === selectedMood.k)?.t || '',
+        note: note
+      };
+
+      // 调用 AI 分析（保留原有心情分析展示）
+      try {
+        const res = await fetch(API_BASE + '/api/mood-analysis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mood: selectedMood.e,
+            note: note,
+            userId: 'user'
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('mood-reply-text').textContent = result.reply;
+          document.getElementById('mood-reply').classList.remove('hidden');
+        } else {
+          // 降级处理
+          const reply = getLocalMoodReply(selectedMood.k);
+          document.getElementById('mood-reply-text').textContent = reply;
+          document.getElementById('mood-reply').classList.remove('hidden');
+        }
+      } catch (err) {
+        const reply = getLocalMoodReply(selectedMood.k);
+        document.getElementById('mood-reply-text').textContent = reply;
+        document.getElementById('mood-reply').classList.remove('hidden');
+      }
+
+      closeMoodDetail();
+      renderMoodCalendar();
+      refreshStats();
+      updateStreak();
+      renderDailyJourney();
+
+      // 自动切换到 AI 搭子界面，以心情为切入点开始对话
+      setTimeout(() => {
+        startMoodChat(moodInfo);
+      }, 800);
+    }
+
+    // ========== 心情→AI搭子 联动：以心情为切入点开始对话 ==========
+    async function startMoodChat(moodInfo) {
+      // 切换到 AI 搭子标签
+      showTab('study');
+
+      // 清空之前的聊天历史，开始新的心情对话
+      document.getElementById('study-chat').innerHTML = '';
+      data.studyMessages = [
+        { role: 'system', content: '你是小星，一个温暖、有同理心的AI心理陪伴伙伴，专门服务15-18岁的中学生。现在用户刚记录了今天的心情，请以心情为切入点，自然地开始对话，进行情绪引导和心理陪伴。' }
+      ];
+
+      // 构建用户消息 - 把心情信息传给AI
+      const moodDesc = `今天我的心情是 ${moodInfo.emoji} ${moodInfo.text}${moodInfo.note ? '，想说：' + moodInfo.note : ''}`;
+      data.studyMessages.push({ role: 'user', content: moodDesc });
+
+      // 在界面上显示用户的心情分享
+      appendStudyMessage(moodDesc, 'user');
+
+      // 创建流式消息元素（AI回复）
+      const messageId = 'msg-' + Date.now();
+      const messageDiv = document.createElement('div');
+      messageDiv.id = messageId;
+      messageDiv.className = 'flex justify-start mb-3';
+      messageDiv.innerHTML = `
+        <div class="flex items-start gap-2">
+          <div class="ai-avatar mr-2 flex-shrink-0">🤖</div>
+          <div class="flex-1 max-w-[85%]">
+            <div class="chat-bubble bot" style="white-space: pre-wrap;">
+              <span class="streaming-text"></span><span class="cursor-blink">▋</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <button 
+                class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 save-to-notes-btn"
+                title="保存到知识星球"
+                onclick="saveChatToNotes('${messageId}')"
+              >
+                📚 收藏
+              </button>
+              <span class="text-xs text-gray-500">小星的回答</span>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('study-chat').appendChild(messageDiv);
+      scrollToBottom();
+
+      try {
+        // 调用心情聊天专用API（带重试机制）
+        let response = null;
+        let retryCount = 0;
+        const maxRetries = 2;
+
+        while (retryCount <= maxRetries) {
+          try {
+            response = await fetch(API_BASE + '/api/mood-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                moodLevel: moodInfo.level,
+                moodEmoji: moodInfo.emoji,
+                moodText: moodInfo.text,
+                note: moodInfo.note,
+                messages: data.studyMessages,
+                userId: 'user'
+              })
+            });
+            if (response.ok) break;
+          } catch (fetchErr) {
+            retryCount++;
+            if (retryCount > maxRetries) throw fetchErr;
+            await new Promise(r => setTimeout(r, 1000));
+          }
+        }
+
+        if (!response || !response.ok) {
+          throw new Error('API unavailable');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const lineData = line.slice(6);
+              if (lineData === '[DONE]') {
+                // 完成，移除光标
+                const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                if (cursor) cursor.remove();
+              } else {
+                try {
+                  const parsed = JSON.parse(lineData);
+                  if (parsed.content) {
+                    fullContent += parsed.content;
+                    updateStreamingMessage(messageId, fullContent);
+                  } else if (parsed.error) {
+                    const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                    if (cursor) cursor.remove();
+                    document.querySelector(`#${messageId} .streaming-text`).textContent = '抱歉，小星暂时离线了 😢 但我想告诉你，不管今天怎样，你愿意记录心情就已经很棒了。';
+                  }
+                } catch (e) {
+                  // 忽略解析错误
+                }
+              }
+            }
+          }
+        }
+
+        // 保存到消息历史
+        data.studyMessages.push({ role: 'assistant', content: fullContent });
+        save();
+
+      } catch (err) {
+        const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+        if (cursor) cursor.remove();
+        // 降级：使用本地回复
+        const fallback = getLocalMoodReply(moodInfo.level);
+        document.querySelector(`#${messageId} .streaming-text`).textContent = fallback;
+      }
+    }
+
+    function getLocalMoodReply(k) {
+      const replies = {
+        5: '状态绝佳！🌟 今天的你可以挑战一些有难度的任务，把这股劲头保持住！',
+        4: '保持得不错！💪 可以完成一些日常任务，给自己点小奖励～',
+        3: '正常的一天～ 📊 做好该做的事就好，不需要太多压力。',
+        2: '烦心事说出来会好很多的 💭 不如去运动一下，或者找朋友聊聊天？',
+        1: '破防了也没关系 😢 允许自己脆弱一下，明天又是新的一天。我在这里陪着你。'
+      };
+      return replies[k] || replies[3];
+    }
+
+    function renderMoodCalendar() {
+      const calendar = document.getElementById('mood-calendar');
+      const labels = ['日', '一', '二', '三', '四', '五', '六'];
+      calendar.innerHTML = '';
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const k = d.toISOString().slice(0, 10);
+        const mood = data.days[k]?.mood;
+        const m = MOODS.find(x => x.k === mood);
+
+        const cell = document.createElement('div');
+        cell.className = 'text-center p-2 rounded-lg bg-white/5';
+        cell.innerHTML = `
+          <div class="text-xs opacity-60">${labels[d.getDay()]}</div>
+          <div class="text-2xl my-1">${m ? m.e : '·'}</div>
+          <div class="text-xs opacity-40">${d.getDate()}</div>
+        `;
+        calendar.appendChild(cell);
+      }
+    }
+
+    function calcStreak() {
+      let s = 0, t = new Date();
+      for (;;) {
+        const k = t.toISOString().slice(0, 10);
+        if (!data.days[k]) break;
+        s++;
+        t.setDate(t.getDate() - 1);
+      }
+      return s;
+    }
+
+    function updateStreak() {
+      document.getElementById('streak-display').textContent = `🔥 连续 ${data.streak} 天`;
+    }
+
+    // ========== Task 8: 边学边问 - 番茄钟→学习搭子联动 ==========
+    function openStudyBotFromTimer() {
+      // 获取当前番茄钟的任务信息
+      const currentTask = data.planTasks?.find(t => t.id === data.currentTaskId);
+      if (currentTask) {
+        // 设置科目为当前任务科目
+        document.getElementById('study-subject').value = currentTask.subject || '数学';
+      }
+
+      // 切换到学习搭子标签
+      showTab('study');
+
+      // 如果番茄钟正在运行，提示用户
+      if (data.isRunning) {
+        appendStudyMessage('💡 小提示：番茄钟还在运行中哦，可以边学边问，但别忘了保持专注！', 'bot');
+      }
+    }
+
+    // ========== AI 学习搭子 ==========
+    async function sendStudyChat(pre) {
+      const input = document.getElementById('study-input');
+      const text = (pre || input.value || '').trim();
+      if (!text) return;
+
+      const subject = document.getElementById('study-subject').value;
+      appendStudyMessage(text, 'user');
+      input.value = '';
+      data.chats++;
+      addExp(2, 'AI对话');
+      save();
+      refreshStats();
+
+      // 创建流式消息元素
+      const messageId = 'msg-' + Date.now();
+      const messageDiv = document.createElement('div');
+      messageDiv.id = messageId;
+      messageDiv.className = 'flex justify-start mb-3';
+      messageDiv.innerHTML = `
+        <div class="flex items-start gap-2">
+          <div class="ai-avatar mr-2 flex-shrink-0">🤖</div>
+          <div class="flex-1 max-w-[85%]">
+            <div class="chat-bubble bot" style="white-space: pre-wrap;">
+              <span class="streaming-text"></span><span class="cursor-blink">▋</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <button 
+                class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 save-to-notes-btn"
+                title="保存到知识星球"
+                onclick="saveChatToNotes('${messageId}')"
+              >
+                📚 收藏
+              </button>
+              <span class="text-xs text-gray-500">小星的回答</span>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('study-chat').appendChild(messageDiv);
+      scrollToBottom();
+
+      try {
+        // 构建上下文感知的消息
+        const currentTask = data.planTasks?.find(t => t.id === data.currentTaskId);
+        let contextInfo = '';
+
+        if (currentTask) {
+          contextInfo = `\n\n【当前学习背景】\n正在学习：${currentTask.title}\n科目：${currentTask.subject || subject}\n任务类型：${currentTask.type === 'pomodoro' ? '番茄任务' : currentTask.type === 'habit' ? '习惯任务' : '自由任务'}\n难度：${currentTask.difficulty || 1}星\n\n请结合当前学习内容给出更有针对性的指导！`;
+        }
+
+        // 注入知识库相关笔记上下文
+        const relevantNotes = (data.notes || [])
+          .filter(n => {
+            const noteSubj = mapSubjectKey(document.getElementById('study-subject')?.value);
+            return n.subject === noteSubj || (n.tags && n.tags.includes('AI学习搭子'));
+          })
+          .slice(-3);
+        if (relevantNotes.length > 0) {
+          const notesContext = '\n\n【相关知识笔记】\n' + relevantNotes.map(n =>
+            `- ${n.title || n.content?.slice(0, 30) || '无标题'}: ${n.content?.slice(0, 80) || ''}`
+          ).join('\n');
+          contextInfo += notesContext;
+        }
+
+        const userMessage = `[${subject}] ${text}${contextInfo}`;
+        data.studyMessages.push({ role: 'user', content: userMessage });
+
+        const response = await fetch(API_BASE + '/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: data.studyMessages,
+            userId: 'user',
+            currentTask: currentTask
+          })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') {
+                // 完成，移除光标
+                const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                if (cursor) cursor.remove();
+              } else {
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.content) {
+                    fullContent += parsed.content;
+                    updateStreamingMessage(messageId, fullContent);
+                  } else if (parsed.error) {
+                    const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+                    if (cursor) cursor.remove();
+                    document.querySelector(`#${messageId} .streaming-text`).textContent = '抱歉，小星暂时离线了 😢 请稍后再试～';
+                  }
+                } catch (e) {
+                  // 忽略解析错误
+                }
+              }
+            }
+          }
+        }
+
+        // 保存到消息历史
+        data.studyMessages.push({ role: 'assistant', content: fullContent });
+        save();
+
+      } catch (err) {
+        const cursor = document.querySelector(`#${messageId} .cursor-blink`);
+        if (cursor) cursor.remove();
+        document.querySelector(`#${messageId} .streaming-text`).textContent = '网络好像有点问题呢 🤔 要不我们换个问题试试？';
+      }
+    }
+
+    function updateStreamingMessage(messageId, content) {
+      const textEl = document.querySelector(`#${messageId} .streaming-text`);
+      if (textEl) {
+        textEl.innerHTML = formatMarkdown(content);
+        scrollToBottom();
+      }
+    }
+
+    function scrollToBottom() {
+      const chat = document.getElementById('study-chat');
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function appendStudyMessage(text, who) {
+      const chat = document.getElementById('study-chat');
+      const div = document.createElement('div');
+      div.className = `flex ${who === 'user' ? 'justify-end' : 'justify-start'} mb-3`;
+
+      if (who === 'bot') {
+        const formattedText = formatMarkdown(text);
+        div.innerHTML = `
+          <div class="flex items-start gap-2">
+            <div class="ai-avatar mr-2 flex-shrink-0">🤖</div>
+            <div class="flex-1 max-w-[85%]">
+              <div class="chat-bubble bot" style="white-space: pre-wrap;">${formattedText}</div>
+              <div class="flex items-center gap-2 mt-2">
+                <button 
+                  class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 save-to-notes-btn"
+                  onclick="saveToNotes('${escapeHtml(text)}')"
+                  title="保存到知识星球"
+                >
+                  📚 收藏
+                </button>
+                <span class="text-xs text-gray-500">小星的回答</span>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        div.innerHTML = `<div class="chat-bubble user">${escapeHtml(text)}</div>`;
+      }
+
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // 保存到知识星球（智能提取版）
+    async function saveToNotes(content) {
+      const subject = mapSubjectKey(document.getElementById('study-subject')?.value);
+      await saveAsKnowledgeCard(content, subject);
+    }
+
+    // 根据消息ID保存聊天内容到知识星球
+    async function saveChatToNotes(messageId) {
+      const streamingText = document.querySelector(`#${messageId} .streaming-text`);
+      if (!streamingText) {
+        alert('❌ 无法获取聊天内容');
+        return;
+      }
+
+      const content = streamingText.textContent || streamingText.innerText;
+      if (!content.trim()) {
+        alert('❌ 聊天内容为空');
+        return;
+      }
+
+      const subject = mapSubjectKey(document.getElementById('study-subject')?.value);
+      await saveAsKnowledgeCard(content, subject);
+    }
+
+    // 核心：调用AI提取知识卡片并保存
+    async function saveAsKnowledgeCard(content, subject) {
+      // 显示提取中提示
+      const loadingToast = document.createElement('div');
+      loadingToast.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-50 glass px-5 py-3 rounded-full text-sm flex items-center gap-2';
+      loadingToast.innerHTML = '<span class="animate-spin">🔄</span> 小星正在提炼知识要点...';
+      document.body.appendChild(loadingToast);
+
+      try {
+        // 收集已有知识卡片标题，供AI发现关联
+        const existingTitles = data.notes
+          .filter(n => n.title)
+          .map(n => n.title)
+          .slice(-20);
+
+        const res = await fetch(API_BASE + '/api/extract-knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: content,
+            subject: getSubjectEmoji(subject),
+            existingTitles: existingTitles
+          })
+        });
+
+        const result = await res.json();
+
+        if (result.success && result.card && result.card.title) {
+          const card = result.card;
+
+          // 构建 Wiki 链接格式的关联概念
+          const relatedWikiLinks = (card.relatedConcepts || []).map(c => `[[${c}]]`);
+
+          // 拼接结构化内容
+          let structuredContent = `📌 ${card.title}\n\n`;
+          structuredContent += `${card.summary || ''}\n\n`;
+          if (card.keyPoints && card.keyPoints.length > 0) {
+            structuredContent += `【核心要点】\n${card.keyPoints.map(p => `• ${p}`).join('\n')}\n\n`;
+          }
+          if (card.commonMistakes && card.commonMistakes.length > 0) {
+            structuredContent += `【常见易错】\n${card.commonMistakes.map(m => `⚠️ ${m}`).join('\n')}\n\n`;
+          }
+          if (relatedWikiLinks.length > 0) {
+            structuredContent += `【关联知识】\n${relatedWikiLinks.join('  ')}`;
+          }
+
+          const note = {
+            id: Date.now(),
+            title: card.title,
+            content: structuredContent,
+            subject: subject,
+            type: 'knowledge-card',
+            createdAt: new Date().toISOString(),
+            date: new Date().toISOString().slice(0, 10),
+            tags: ['AI学习搭子', '知识卡片'],
+            related: card.relatedConcepts || [],
+            rawContent: content
+          };
+
+          data.notes.push(note);
+          addExp(3, '收藏知识');
+          save();
+          renderNotes();
+
+          loadingToast.remove();
+          alert(`🎉 知识卡片已生成！\n\n📚 ${card.title}\n${card.summary || ''}\n\n${card.keyPoints?.length || 0} 个要点 | ${card.commonMistakes?.length || 0} 个易错点`);
+        } else {
+          // AI 判断无可提取知识，降级为原文保存
+          throw new Error('No knowledge extracted');
+        }
+      } catch (err) {
+        // 降级：原文保存
+        loadingToast.remove();
+
+        const note = {
+          id: Date.now(),
+          content: content,
+          subject: subject,
+          type: 'knowledge',
+          createdAt: new Date().toISOString(),
+          date: new Date().toISOString().slice(0, 10),
+          tags: ['AI学习搭子']
+        };
+
+        data.notes.push(note);
+        addExp(3, '收藏知识');
+        save();
+        renderNotes();
+
+        alert(`✅ 已保存到知识星球！\n\n（知识提取服务暂时不可用，已保存原文）`);
+      }
+    }
+
+    // 简单的 Markdown 格式化
+    function formatMarkdown(text) {
+      if (!text) return '';
+
+      // 第一步：保护 LaTeX 公式不被转义
+      // 行内公式 $...$
+      let formulas = [];
+      let formulaIndex = 0;
+
+      text = text.replace(/\$\$(.+?)\$\$/gs, (match, formula) => {
+        formulas.push({ type: 'block', formula: fixLatexFormula(formula) });
+        return `%%FORMULA_BLOCK_${formulaIndex++}%%`;
+      });
+
+      text = text.replace(/\$(.+?)\$/g, (match, formula) => {
+        formulas.push({ type: 'inline', formula: fixLatexFormula(formula) });
+        return `%%FORMULA_INLINE_${formulaIndex++}%%`;
+      });
+
+      // 第二步：转义 HTML 特殊字符
+      let html = escapeHtml(text);
+
+      // 第三步：Markdown 格式化
+      // 标题：# xxx -> <strong>xxx</strong>
+      html = html.replace(/^### (.+)$/gm, '<strong>$1</strong>');
+      html = html.replace(/^## (.+)$/gm, '<strong>$1</strong>');
+      html = html.replace(/^# (.+)$/gm, '<strong>$1</strong>');
+      // 列表：- xxx -> • xxx
+      html = html.replace(/^- (.+)$/gm, '• $1');
+      // 换行
+      html = html.replace(/\n/g, '<br>');
+      // 粗体 **xxx**
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // 斜体 *xxx*
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+      // 第四步：渲染 LaTeX 公式
+      formulas.forEach((item, index) => {
+        const placeholder = item.type === 'block'
+          ? `%%FORMULA_BLOCK_${index}%%`
+          : `%%FORMULA_INLINE_${index}%%`;
+
+        try {
+          const rendered = katex.renderToString(item.formula, {
+            displayMode: item.type === 'block',
+            throwOnError: false,
+            output: 'html'
+          });
+          html = html.replace(placeholder, rendered);
+        } catch (e) {
+          // 如果渲染失败，显示原始公式
+          html = html.replace(placeholder,
+            item.type === 'block'
+              ? `<div class="formula-block">${item.formula}</div>`
+              : `<span class="formula-inline">${item.formula}</span>`
+          );
+        }
+      });
+
+      return html;
+    }
+
+    // 修复常见的 LaTeX 公式错误
+    function fixLatexFormula(formula) {
+      return formula
+        // \cdotp 应该是 \cdot（点乘）
+        .replace(/\\cdotp/g, '\\cdot')
+        // \timesp 应该是 \times（叉乘）
+        .replace(/\\timesp/g, '\\times')
+        // 修复可能的空格问题
+        .replace(/\\cdot\s+/g, '\\cdot ')
+        .replace(/\\times\s+/g, '\\times ')
+        // 修复单位显示（kg·m/s）
+        .replace(/kg\\cdot m/g, 'kg \\cdot m')
+        .replace(/kg\\cdotpm/g, 'kg \\cdot m')
+        // 修复负号显示
+        .replace(/−/g, '-')  // 将中文负号替换为英文负号
+        // 添加空格改善可读性
+        .replace(/([a-z])(\d)/gi, '$1 $2')  // 字母和数字之间加空格
+        .replace(/(\d)([a-z])/gi, '$1 $2');
+    }
+
+    // 添加公式样式
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+      .formula-inline {
+        font-size: 1.1em;
+        padding: 0 2px;
+      }
+      .formula-block {
+        background: rgba(255,255,255,0.05);
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+        text-align: center;
+        overflow-x: auto;
+      }
+      .katex {
+        font-size: 1.1em;
+      }
+      .katex-display {
+        margin: 10px 0;
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    function addLoadingIndicator() {
+      const id = 'loading-' + Date.now();
+      const chat = document.getElementById('study-chat');
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = 'flex justify-start';
+      div.innerHTML = `
+        <div class="ai-avatar mr-2">🤖</div>
+        <div class="chat-bubble bot">
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      `;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return id;
+    }
+
+    function removeLoadingIndicator(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    // ========== 番茄钟 ==========
+    let pomo = {
+      stage: 'focus',
+      remain: 25 * 60,
+      running: false,
+      mode: 25,
+      interval: null
+    };
+
+    function setPomoMode(v) {
+      if (pomo.running) return;
+      pomo.mode = +v;
+      pomo.remain = pomo.mode * 60;
+      renderPomo();
+    }
+
+    function togglePomo() {
+      // 检查是否选择了任务
+      if (!currentTaskId) {
+        const tasks = data.planTasks.filter(t => !t.completed);
+        if (tasks.length > 0) {
+          alert('请先选择一个任务哦～\n\n点击任务卡片选中后，再开始计时 🎯');
+          // 自动切换到任务列表
+          showTab('timer');
+          return;
+        }
+      }
+
+      pomo.running = !pomo.running;
+      document.getElementById('pomo-toggle').textContent = pomo.running ? '暂停' : '继续专注';
+
+      if (pomo.running) {
+        // 标记为运行状态
+        data.isRunning = true;
+        save();
+
+        // Task 8: 显示边学边问按钮
+        const floatBtn = document.getElementById('study-bot-float-btn');
+        if (floatBtn) floatBtn.classList.remove('hidden');
+
+        // 开始计时，更新显示
+        if (currentTaskId) {
+          const task = data.planTasks.find(t => t.id === currentTaskId);
+          document.getElementById('current-task-display').innerHTML = `
+            <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3">
+              <div class="text-blue-300 text-xs mb-1">🎯 当前任务</div>
+              <div class="font-medium">${task.title}</div>
+              <div class="text-xs opacity-75">${task.subject}</div>
+            </div>
+          `;
+        }
+
+        pomo.interval = setInterval(tickPomo, 1000);
+      } else {
+        clearInterval(pomo.interval);
+        data.isRunning = false;
+        save();
+
+        // Task 8: 隐藏边学边问按钮
+        const floatBtn = document.getElementById('study-bot-float-btn');
+        if (floatBtn) floatBtn.classList.add('hidden');
+      }
+    }
+
+    function resetPomo() {
+      clearInterval(pomo.interval);
+      pomo = { stage: 'focus', remain: pomo.mode * 60, running: false, mode: pomo.mode, interval: null };
+      data.isRunning = false;
+      save();
+
+      document.getElementById('pomo-toggle').textContent = '开始专注';
+      document.getElementById('current-task-display').innerHTML = currentTaskId ?
+        `准备执行：${data.planTasks.find(t => t.id === currentTaskId)?.title}` :
+        '选择一个任务开始专注吧 🎯';
+      renderPomo();
+
+      // Task 8: 隐藏边学边问按钮
+      const floatBtn = document.getElementById('study-bot-float-btn');
+      if (floatBtn) floatBtn.classList.add('hidden');
+    }
+
+    function tickPomo() {
+      pomo.remain--;
+      if (pomo.remain <= 0) {
+        if (pomo.stage === 'focus') {
+          data.tomatoes++;
+          addExp(10, '完成番茄');
+          data.lastTomatoDate = new Date().toISOString().slice(0, 10);
+          save();
+          renderTomatoAchievements();
+          refreshStats();
+
+          // Task 10: 番茄完成自动打卡关联习惯
+          if (currentTaskId) {
+            completeTask(currentTaskId);
+            const task = data.planTasks.find(t => t.id === currentTaskId);
+
+            // 查找关联的习惯并自动打卡
+            const relatedHabit = data.habits.find(h =>
+              h.name.includes(task.subject) ||
+              task.title.includes(h.name) ||
+              h.relatedTaskId === currentTaskId
+            );
+
+            if (relatedHabit) {
+              // 自动打卡
+              const today = new Date().toISOString().slice(0, 10);
+              const alreadyChecked = relatedHabit.completed?.includes(today);
+
+              if (!alreadyChecked) {
+                relatedHabit.completed = relatedHabit.completed || [];
+                relatedHabit.completed.push(today);
+                relatedHabit.streak = (relatedHabit.streak || 0) + 1;
+                save();
+                renderHabits();
+                alert(`🎉 太棒了！任务"${task.title}"完成！\n\n✨ 自动打卡习惯「${relatedHabit.name}」成功！\n🔥 连续打卡 ${relatedHabit.streak} 天！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+              } else {
+                alert(`🎉 太棒了！任务"${task.title}"完成！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+              }
+            } else {
+              alert(`🎉 太棒了！任务"${task.title}"完成！\n\n你已经完成了 ${data.tomatoes} 个番茄 🌸`);
+            }
+          } else {
+            alert('🎉 番茄完成！休息一下吧～');
+          }
+
+          pomo.stage = 'break';
+          pomo.remain = (pomo.mode === 15 ? 3 : pomo.mode === 45 ? 10 : 5) * 60;
+
+          // 重置当前任务
+          currentTaskId = null;
+          document.getElementById('current-task-display').innerHTML = '选择一个任务开始专注吧 🎯';
+          data.isRunning = false;
+          save();
+
+          // Task 8: 隐藏边学边问按钮
+          const floatBtn = document.getElementById('study-bot-float-btn');
+          if (floatBtn) floatBtn.classList.add('hidden');
+
+          renderDailyJourney();
+        } else {
+          pomo.stage = 'focus';
+          pomo.remain = pomo.mode * 60;
+          alert('⏰ 休息结束！准备好继续学习了吗？');
+        }
+      }
+      renderPomo();
+    }
+
+    function renderPomo() {
+      const m = String(Math.floor(pomo.remain / 60)).padStart(2, '0');
+      const s = String(pomo.remain % 60).padStart(2, '0');
+      document.getElementById('pomo-time').textContent = `${m}:${s}`;
+
+      if (pomo.running && currentTaskId) {
+        const task = data.planTasks.find(t => t.id === currentTaskId);
+        document.getElementById('pomo-stage').textContent = `🔥 ${task?.title || '专注中...'}`;
+      } else {
+        document.getElementById('pomo-stage').textContent = pomo.stage === 'focus' ? '准备中...' : '休息中...';
+      }
+
+      const total = pomo.stage === 'focus' ? pomo.mode * 60 : (pomo.mode === 15 ? 3 : pomo.mode === 45 ? 10 : 5) * 60;
+      const offset = 326.7 * (1 - pomo.remain / total);
+      document.getElementById('progress-ring').setAttribute('stroke-dashoffset', offset);
+    }
+
+    function renderTomatoAchievements() {
+      const el = document.getElementById('tomato-achievements');
+      if (data.tomatoes === 0) {
+        el.innerHTML = '<span class="opacity-50 text-sm">还没有完成番茄哦～</span>';
+        return;
+      }
+      el.innerHTML = Array.from({ length: Math.min(data.tomatoes, 20) }, () => '<span class="text-2xl">🌸</span>').join('');
+    }
+
+    // ========== 学习计划 ==========
+    function toggleSubject(el, subject) {
+      el.classList.toggle('selected');
+      if (selectedSubjects.includes(subject)) {
+        selectedSubjects = selectedSubjects.filter(s => s !== subject);
+      } else {
+        selectedSubjects.push(subject);
+      }
+    }
+
+    async function generatePlan() {
+      const goal = document.getElementById('plan-goal').value;
+      const time = document.getElementById('plan-time').value;
+
+      if (!goal) {
+        alert('请输入学习目标哦～');
+        return;
+      }
+
+      const btn = event.target;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+
+      try {
+        // Task 13: 读取今日心情
+        const today = new Date().toISOString().slice(0, 10);
+        const todayMoodData = data.days[today];
+        const moodLevel = todayMoodData?.mood || 3; // 默认一般心情
+
+        // Task 13: 根据心情获取难度权重
+        const difficultyWeights = getMoodDifficultyWeight(moodLevel);
+
+        const res = await fetch(API_BASE + '/api/generate-study-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            goals: goal,
+            availableTime: time,
+            subjects: selectedSubjects,
+            mood: moodLevel,
+            moodDescription: MOODS.find(m => m.k === moodLevel)?.e || '😐',
+            difficultyWeights: difficultyWeights  // Task 13: 传递难度权重给 AI
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('plan-content').innerHTML = result.plan.replace(/\n/g, '<br>');
+          document.getElementById('plan-result').classList.remove('hidden');
+
+          // 保存计划数据到 data
+          data.currentPlan = {
+            goal: goal,
+            time: time,
+            subjects: [...selectedSubjects],
+            mood: moodLevel,
+            createdAt: new Date().toISOString()
+          };
+
+          // Task 13: 根据心情调整任务难度
+          const planTasks = parseTasksFromPlan(result.plan, selectedSubjects, difficultyWeights);
+          data.planTasks = planTasks;
+          save();
+
+          // 显示今日任务
+          showTodayTasks();
+
+          // Task 13: 显示心情影响提示
+          const moodName = MOODS.find(m => m.k === moodLevel)?.t || '一般';
+          if (moodLevel <= 2) {
+            setTimeout(() => {
+              appendStudyMessage(`📝 今日计划已根据你的心情调整！\n\n💭 你的心情是「${moodName}」，计划中减少了高难度任务，多安排了一些轻松的学习内容。\n\n🌟 记得先从简单的开始，慢慢找回状态～`, 'bot');
+            }, 500);
+          } else if (moodLevel >= 4) {
+            setTimeout(() => {
+              appendStudyMessage(`📝 今日计划已根据你的心情调整！\n\n🌟 你的心情是「${moodName}」，计划中安排了一些有挑战性的任务！\n\n💪 状态这么好，趁机多学一点吧！`, 'bot');
+            }, 500);
+          }
+
+        } else {
+          alert('生成计划失败，请重试～');
+        }
+      } catch (err) {
+        alert('网络有点问题呢 🤔');
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '🚀 让 AI 生成学习计划';
+    }
+
+    // Task 13: 根据心情获取难度权重
+    function getMoodDifficultyWeight(moodLevel) {
+      const weights = {
+        5: { easy: 0.15, medium: 0.35, hard: 0.50 },  // 超棒：40%高难度
+        4: { easy: 0.20, medium: 0.40, hard: 0.40 },  // 不错：30%高难度
+        3: { easy: 0.30, medium: 0.50, hard: 0.20 },  // 一般：20%高难度
+        2: { easy: 0.50, medium: 0.40, hard: 0.10 },  // 有点烦：10%高难度
+        1: { easy: 0.65, medium: 0.30, hard: 0.05 }   // 破防了：5%高难度
+      };
+      return weights[moodLevel] || weights[3];
+    }
+
+    // 解析计划内容，生成任务列表
+    // Task 11 & Task 13: 根据心情调整难度，根据计划推荐习惯
+    function parseTasksFromPlan(planContent, subjects, difficultyWeights = null) {
+      const tasks = [];
+      const taskKeywords = ['复习', '练习', '背诵', '预习', '完成', '学习', '做题', '阅读'];
+      const habitKeywords = ['每天', '习惯', '坚持', '定时'];
+
+      // 难度权重
+      const weights = difficultyWeights || { easy: 0.3, medium: 0.5, hard: 0.2 };
+
+      // 简单地从计划内容中提取任务
+      const lines = planContent.split('\n');
+      let taskId = 1;
+
+      lines.forEach(line => {
+        // 过滤出包含任务关键词的行
+        if (taskKeywords.some(keyword => line.includes(keyword)) && line.length < 100) {
+          const cleanTask = line.replace(/^[#\-\*\d\.。、\s]+/g, '').trim();
+          if (cleanTask.length > 0) {
+            // Task 13: 根据难度权重随机分配难度
+            const rand = Math.random();
+            let difficulty;
+            if (rand < weights.easy) {
+              difficulty = Math.floor(Math.random() * 2) + 1; // 1-2星
+            } else if (rand < weights.easy + weights.medium) {
+              difficulty = Math.floor(Math.random() * 2) + 2; // 2-3星
+            } else {
+              difficulty = Math.floor(Math.random() * 2) + 4; // 4-5星
+            }
+
+            // Task 11: 判断是否为习惯任务
+            const isHabitTask = habitKeywords.some(keyword => line.includes(keyword));
+
+            tasks.push({
+              id: taskId++,
+              title: cleanTask,
+              subject: subjects[Math.floor(Math.random() * subjects.length)],
+              type: isHabitTask ? 'habit' : 'pomodoro',  // Task 11: 习惯任务分类
+              difficulty: difficulty,
+              completed: false,
+              completedAt: null
+            });
+          }
+        }
+      });
+
+      // 如果没有提取到任务，生成默认任务
+      if (tasks.length === 0) {
+        subjects.forEach(subject => {
+          const rand = Math.random();
+          let difficulty;
+          if (rand < weights.easy) {
+            difficulty = Math.floor(Math.random() * 2) + 1;
+          } else if (rand < weights.easy + weights.medium) {
+            difficulty = Math.floor(Math.random() * 2) + 2;
+          } else {
+            difficulty = Math.floor(Math.random() * 2) + 4;
+          }
+
+          tasks.push({
+            id: taskId++,
+            title: `${subject} 专项练习`,
+            subject: subject,
+            type: 'pomodoro',
+            difficulty: difficulty,
+            completed: false,
+            completedAt: null
+          });
+        });
+      }
+
+      // Task 11: 根据计划推荐习惯
+      const habitTasks = tasks.filter(t => t.type === 'habit');
+      habitTasks.forEach(task => {
+        // 检查是否已存在相同习惯
+        const exists = data.habits.some(h => h.name.includes(task.subject));
+        if (!exists) {
+          // 可以提示用户创建习惯（这里简化处理）
+          console.log(`建议创建习惯：每日${task.subject}学习`);
+        }
+      });
+
+      return tasks;
+    }
+
+    // 显示今日任务（在番茄钟界面）
+    function showTodayTasks() {
+      const tasksContainer = document.getElementById('today-tasks');
+      const todayTasks = data.planTasks.filter(t => !t.completed);
+
+      if (todayTasks.length === 0 && !data.currentPlan) {
+        tasksContainer.innerHTML = '<p class="text-sm opacity-50">还没有今日学习计划哦～</p>';
+        return;
+      }
+
+      if (!data.currentPlan) {
+        tasksContainer.innerHTML = '<p class="text-sm opacity-50">还没有今日学习计划哦～</p>';
+        return;
+      }
+
+      const completedCount = data.planTasks.filter(t => t.completed).length;
+      const totalCount = data.planTasks.length;
+
+      tasksContainer.innerHTML = `
+        <div class="mb-3">
+          <div class="text-sm font-medium mb-2">📋 今日任务 (${completedCount}/${totalCount})</div>
+          <div class="space-y-2">
+            ${data.planTasks.map(task => `
+              <div class="task-item ${task.completed ? 'completed' : ''} ${task.id === currentTaskId ? 'active' : ''}"
+                   onclick="selectTask(${task.id})">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full ${task.completed ? 'bg-green-500' : task.id === currentTaskId ? 'bg-blue-500' : 'border-2 border-gray-500'}"
+                       style="min-width: 20px; min-height: 20px;">
+                    ${task.completed ? '✓' : ''}
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-sm">${task.title}</div>
+                    <div class="text-xs opacity-50">${task.subject}</div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let currentTaskId = null;
+
+    // 选择任务
+    function selectTask(taskId) {
+      const task = data.planTasks.find(t => t.id === taskId);
+      if (task.completed) return;
+
+      currentTaskId = taskId;
+      data.currentTaskId = taskId;  // 保存到全局数据
+      save();
+      showTodayTasks();
+
+      // 立即更新时钟界面的任务显示
+      document.getElementById('current-task-display').innerHTML = `
+        <div class="bg-purple-500/20 border border-purple-500/30 rounded-lg p-3 animate-pulse">
+          <div class="text-purple-300 text-xs mb-1">✅ 已选择任务</div>
+          <div class="font-medium">${task.title}</div>
+          <div class="text-xs opacity-75">${task.subject} · ${task.type === 'pomodoro' ? '番茄任务' : task.type === 'habit' ? '习惯任务' : '自由任务'}</div>
+          <div class="text-xs mt-1 text-yellow-300">点击"开始专注"开始计时吧！🌟</div>
+        </div>
+      `;
+
+      // 更新番茄钟模式（根据任务时长）
+      if (task.duration) {
+        pomo.mode = task.duration;
+        pomo.remain = task.duration * 60;
+        renderPomo();
+      }
+    }
+
+    // 标记任务完成
+    function completeTask(taskId) {
+      const task = data.planTasks.find(t => t.id === taskId);
+      if (task) {
+        task.completed = true;
+        task.completedAt = new Date().toISOString();
+        save();
+        showTodayTasks();
+      }
+    }
+
+    // ========== 好习惯 ==========
+    function renderHabits() {
+      const list = document.getElementById('habits-list');
+      const today = new Date().toISOString().slice(0, 10);
+
+      list.innerHTML = data.habits.map(habit => {
+        const completed = habit.completed.includes(today);
+        const streak = calcHabitStreak(habit);
+
+        return `
+          <div class="habit-card flex items-center gap-3">
+            <div class="check-circle ${completed ? 'checked' : ''}" onclick="toggleHabit(${habit.id})">
+              ${completed ? '✓' : ''}
+            </div>
+            <div class="flex-1">
+              <div class="font-bold flex items-center gap-2">
+                <span class="text-2xl">${habit.emoji}</span>
+                ${habit.name}
+              </div>
+              <div class="text-xs opacity-60">连续 ${streak} 天 · 目标 ${habit.target} 天</div>
+            </div>
+            <div class="text-xs opacity-60">${habit.completed.length}/${habit.target}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function calcHabitStreak(habit) {
+      let s = 0, t = new Date();
+      for (let i = 0; i < 365; i++) {
+        const k = t.toISOString().slice(0, 10);
+        if (habit.completed.includes(k)) {
+          s++;
+          t.setDate(t.getDate() - 1);
+        } else if (i > 0) {
+          break;
+        } else {
+          t.setDate(t.getDate() - 1);
+        }
+      }
+      return s;
+    }
+
+    function toggleHabit(id) {
+      const habit = data.habits.find(h => h.id === id);
+      const today = new Date().toISOString().slice(0, 10);
+
+      if (habit.completed.includes(today)) {
+        habit.completed = habit.completed.filter(d => d !== today);
+      } else {
+        habit.completed.push(today);
+      }
+
+      save();
+      renderHabits();
+      refreshStats();
+      renderDailyJourney();
+
+      // 打卡成功（非取消打卡）才奖励经验值
+      if (habit.completed.includes(today)) {
+        addExp(5, '习惯打卡');
+
+        // 连续打卡7天触发AI鼓励
+        const streak = calcHabitStreak(habit);
+        if (streak > 0 && streak % 7 === 0) {
+          setTimeout(() => {
+            appendStudyMessage(`🎉 太棒了！习惯「${habit.name}」已经连续打卡 ${streak} 天了！小星想跟你说几句～`, 'bot');
+            // 静默触发AI鼓励
+            fetch(API_BASE + '/api/mood-analysis', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                mood: '😄',
+                note: `连续打卡习惯「${habit.name}」${streak}天`,
+                userId: 'user'
+              })
+            }).then(res => res.json()).then(result => {
+              if (result.success) {
+                appendStudyMessage(result.reply, 'bot');
+              }
+            }).catch(() => {});
+          }, 500);
+        }
+      }
+    }
+
+    function showAddHabitModal() {
+      document.getElementById('add-habit-modal').classList.remove('hidden');
+    }
+
+    function selectEmoji(emoji) {
+      selectedEmoji = emoji;
+      document.getElementById('selected-emoji').textContent = emoji;
+    }
+
+    function saveNewHabit() {
+      const name = document.getElementById('new-habit-name').value;
+      if (!name) {
+        alert('请输入习惯名称～');
+        return;
+      }
+
+      data.habits.push({
+        id: Date.now(),
+        name: name,
+        emoji: selectedEmoji,
+        completed: [],
+        target: 30
+      });
+
+      save();
+      renderHabits();
+      closeModal('add-habit-modal');
+      document.getElementById('new-habit-name').value = '';
+    }
+
+    function addHabit(name, emoji) {
+      data.habits.push({
+        id: Date.now(),
+        name: name,
+        emoji: emoji,
+        completed: [],
+        target: 30
+      });
+
+      save();
+      renderHabits();
+    }
+
+    // ========== 知识库 ==========
+    function renderNotes() {
+      const list = document.getElementById('notes-list');
+
+      if (data.notes.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-8 opacity-50">
+            <div class="text-4xl mb-2">📚</div>
+            <p>还没有记录任何知识哦～</p>
+            <p class="text-sm mt-1">点击上方按钮，记录今天学到的重要知识点</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Task 14-16: 知识星球 Wiki 风格 + 知识卡片样式
+      list.innerHTML = data.notes.slice().reverse().map(note => {
+        // 解析 Wiki 链接
+        const processedContent = parseWikiLinks(note.content, note.id);
+        const isKnowledgeCard = note.type === 'knowledge-card';
+
+        // 知识卡片使用特殊样式
+        const cardClass = isKnowledgeCard
+          ? 'card p-4 cursor-pointer hover:bg-white/10 transition-colors border-l-4 border-l-purple-400/60'
+          : 'card p-4 cursor-pointer hover:bg-white/10 transition-colors';
+
+        return `
+        <div class="${cardClass}" onclick="showNoteDetail(${note.id})">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs px-2 py-1 rounded bg-white/10">${getSubjectEmoji(note.subject)}</span>
+                ${isKnowledgeCard ? '<span class="text-xs px-2 py-1 rounded bg-purple-500/30 text-purple-200">🧠 知识卡片</span>' : ''}
+                ${note.tags ? note.tags.filter(t => t !== '知识卡片').map(tag => `<span class="text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300">${tag}</span>`).join('') : ''}
+              </div>
+              <h4 class="font-bold mt-1">${escapeHtml(note.title || note.content?.slice(0, 20) || '无标题')}</h4>
+            </div>
+            <span class="text-xs opacity-40 whitespace-nowrap">${note.date || ''}</span>
+          </div>
+          <div class="text-sm opacity-80 wiki-content">${processedContent}</div>
+          ${note.related && note.related.length > 0 ? `
+            <div class="mt-2 pt-2 border-t border-white/10">
+              <span class="text-xs opacity-50">🔗 关联知识：</span>
+              ${note.related.map(r => `<span class="wiki-link text-xs text-blue-400 hover:text-blue-300 cursor-pointer" onclick="event.stopPropagation();showNoteByTitle('${r}')">[[${r}]]</span>`).join(' ')}
+            </div>
+          ` : ''}
+        </div>
+      `}).join('');
+
+      // 绑定 Wiki 链接点击事件
+      setTimeout(() => {
+        document.querySelectorAll('.wiki-link').forEach(link => {
+          link.onclick = (e) => {
+            e.stopPropagation();
+            const title = link.textContent.replace(/^\[\[|\]\]$/g, '');
+            showNoteByTitle(title);
+          };
+        });
+      }, 100);
+    }
+
+    // Task 14-16: 解析 Wiki 风格链接 [[知识点]]
+    function parseWikiLinks(content, currentNoteId) {
+      // 转义HTML
+      let processed = escapeHtml(content);
+
+      // 解析 [[链接]] 语法
+      processed = processed.replace(/\[\[([^\]]+)\]\]/g, (match, linkText) => {
+        // 检查链接是否存在
+        const exists = data.notes.some(n => n.title === linkText);
+        if (exists) {
+          return `<span class="wiki-link text-blue-400 hover:text-blue-300 cursor-pointer" onclick="event.stopPropagation();showNoteByTitle('${linkText}')">${linkText}</span>`;
+        } else {
+          return `<span class="text-gray-400 cursor-pointer" title="点击创建：${linkText}" onclick="event.stopPropagation();createNoteFromLink('${linkText}')">${linkText}</span>`;
+        }
+      });
+
+      // 转换换行
+      processed = processed.replace(/\n/g, '<br>');
+
+      return processed;
+    }
+
+    // Task 14-16: 根据标题显示笔记详情
+    function showNoteByTitle(title) {
+      const note = data.notes.find(n => n.title === title);
+      if (note) {
+        showNoteDetail(note.id);
+      }
+    }
+
+    // Task 14-16: 显示笔记详情
+    function showNoteDetail(noteId) {
+      const note = data.notes.find(n => n.id === noteId);
+      if (!note) return;
+
+      const modal = document.getElementById('note-detail-modal') || createNoteDetailModal();
+      modal.classList.remove('hidden');
+
+      document.getElementById('detail-note-title').textContent = note.title;
+      document.getElementById('detail-note-content').innerHTML = parseWikiLinks(note.content, noteId);
+      document.getElementById('detail-note-subject').textContent = getSubjectEmoji(note.subject);
+
+      // 推荐相关笔记
+      const related = data.notes.filter(n =>
+        n.id !== noteId &&
+        (n.subject === note.subject || n.tags?.some(t => note.tags?.includes(t)))
+      ).slice(0, 5);
+
+      const relatedHtml = related.length > 0 ?
+        `<div class="mt-4 pt-4 border-t border-white/10">
+          <h4 class="text-sm font-bold mb-2 opacity-70">相关知识点</h4>
+          <div class="flex flex-wrap gap-2">
+            ${related.map(n => `<span class="wiki-link text-xs px-2 py-1 rounded bg-purple-500/20 text-purple-300 cursor-pointer" onclick="showNoteByTitle('${n.title}')">[[${n.title}]]</span>`).join('')}
+          </div>
+        </div>` : '';
+
+      document.getElementById('detail-note-related').innerHTML = relatedHtml;
+    }
+
+    // Task 14-16: 从 Wiki 链接创建笔记
+    function createNoteFromLink(title) {
+      document.getElementById('note-title').value = title;
+      document.getElementById('add-note-modal').classList.remove('hidden');
+      document.getElementById('note-content').focus();
+    }
+
+    // Task 14-16: 创建笔记详情模态框
+    function createNoteDetailModal() {
+      const modal = document.createElement('div');
+      modal.id = 'note-detail-modal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold" id="detail-note-title"></h3>
+            <button onclick="document.getElementById('note-detail-modal').classList.add('hidden')" class="text-2xl opacity-60 hover:opacity-100">×</button>
+          </div>
+          <div class="mb-2">
+            <span id="detail-note-subject" class="text-sm"></span>
+          </div>
+          <div id="detail-note-content" class="text-sm opacity-90 whitespace-pre-wrap"></div>
+          <div id="detail-note-related"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    // 科目中文名 → 英文 key 映射
+    function mapSubjectKey(cn) {
+      const map = {
+        '数学': 'math', '英语': 'english', '物理': 'physics',
+        '化学': 'chemistry', '语文': 'chinese',
+        '生物': 'other', '历史': 'other', '地理': 'other', '政治': 'other'
+      };
+      return map[cn] || 'other';
+    }
+
+    function getSubjectEmoji(subject) {
+      const map = {
+        math: '🧮 数学',
+        english: '🅰️ 英语',
+        physics: '🔬 物理',
+        chemistry: '⚗️ 化学',
+        chinese: '📖 语文',
+        other: '📝 其他'
+      };
+      return map[subject] || '📝';
+    }
+
+    function filterNotes(subject) {
+      const list = document.getElementById('notes-list');
+      const filtered = subject === 'all' ? data.notes : data.notes.filter(n => n.subject === subject);
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-8 opacity-50">
+            <div class="text-4xl mb-2">📚</div>
+            <p>该分类下还没有笔记哦～</p>
+          </div>
+        `;
+        return;
+      }
+
+      renderNotes();
+    }
+
+    function showAddNoteModal() {
+      document.getElementById('add-note-modal').classList.remove('hidden');
+    }
+
+    function saveNewNote() {
+      const title = document.getElementById('note-title').value;
+      const subject = document.getElementById('note-subject').value;
+      const content = document.getElementById('note-content').value;
+
+      if (!title || !content) {
+        alert('请填写标题和内容～');
+        return;
+      }
+
+      data.notes.push({
+        id: Date.now(),
+        title,
+        subject,
+        content,
+        date: new Date().toISOString().slice(0, 10)
+      });
+      addExp(3, '记录知识');
+
+      save();
+      renderNotes();
+      closeModal('add-note-modal');
+
+      document.getElementById('note-title').value = '';
+      document.getElementById('note-content').value = '';
+    }
+
+    // ========== 弹窗控制 ==========
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 点击外部关闭弹窗
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    });
+
+    // ========== 统计 & 数据 ==========
+    function refreshStats() {
+      const dayKeys = Object.keys(data.days || {});
+      document.getElementById('stat-days').textContent = daysSince(data.joinDate) + 1;
+      document.getElementById('stat-tomato').textContent = data.tomatoes || 0;
+      document.getElementById('stat-moods').textContent = data.moodCount || 0;
+      document.getElementById('stat-chat').textContent = data.chats || 0;
+      renderTomatoAchievements();
+      renderDailyJourney();
+      updateLevelDisplay();
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `galaxy-learning-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+    }
+
+    function resetAll() {
+      if (!confirm('确定要清空所有数据吗？这个操作不可恢复哦～')) return;
+      localStorage.removeItem(KEY);
+      location.reload();
+    }
+
+    // ========== 启动 ==========
+    init();
+  </script>
+</body>
+</html>

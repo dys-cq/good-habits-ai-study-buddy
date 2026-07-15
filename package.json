@@ -1,0 +1,15 @@
+{
+  "name": "galaxy-learning-alliance",
+  "version": "1.0.0",
+  "description": "新一代智能协同学习系统 - 星际学习联盟",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  }
+}
